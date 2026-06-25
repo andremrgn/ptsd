@@ -10,6 +10,7 @@
     <div class="app-role-tag">{{ roleLabel }}</div>
     <div class="app-header-right">
       <button class="logout-btn" @click="logout">Logg ut</button>
+      <NotificationBell />
       <button class="profile-btn" @click="drawerStore.open = true">
         <img
           :src="profileImg"

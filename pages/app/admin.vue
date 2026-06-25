@@ -39,6 +39,22 @@
         </div>
       </div>
 
+      <!-- Competition deadline -->
+      <div class="mb1 mt2">
+        <div class="section-title">Innsendingsfrist</div>
+        <div class="status-bar">
+          <div class="status-ind">
+            <div class="dot" :style="{ background: deadline ? '#3D9E6A' : 'var(--muted)' }"></div>
+            <span v-if="deadline">Frist: {{ deadlineLabel }} · Juryering starter {{ juryStartLabel }}</span>
+            <span v-else style="color:var(--muted)">Ingen frist satt</span>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input v-model="deadline" type="date" class="form-input" style="max-width:175px;margin:0" />
+            <button class="btn btn-sm" @click="saveDeadline">Lagre</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Jury members -->
       <div class="mb1 mt2">
         <div class="section-title">Jurymedlemmer</div>
@@ -107,6 +123,30 @@ const juryLoading = ref(true)
 const subsLoading = ref(true)
 const newJuryName = ref('')
 const newJuryCode = ref('')
+const deadline = ref(store.competitionDeadline || '')
+
+const deadlineLabel = computed(() => {
+  if (!deadline.value) return ''
+  return new Date(deadline.value).toLocaleDateString('no', { day: 'numeric', month: 'long', year: 'numeric' })
+})
+
+const juryStartLabel = computed(() => {
+  if (!deadline.value) return ''
+  const d = new Date(deadline.value)
+  d.setDate(d.getDate() - 3)
+  return d.toLocaleDateString('no', { day: 'numeric', month: 'long', year: 'numeric' })
+})
+
+async function saveDeadline() {
+  const val = deadline.value || null
+  const { error } = await sb.from('settings').upsert(
+    { key: 'competition_deadline', value: val },
+    { onConflict: 'key' },
+  )
+  if (error) { toast('Feil: ' + error.message, true); return }
+  store.competitionDeadline = val
+  toast(val ? `Frist satt til ${deadlineLabel.value}` : 'Frist fjernet')
+}
 
 onMounted(loadAdminData)
 

@@ -3,6 +3,10 @@
     {
       "path": "/api/send-reminder",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/auto-judging",
+      "schedule": "0 8 * * *"
     }
   ]
 }

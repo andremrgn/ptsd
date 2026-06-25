@@ -26,6 +26,7 @@ export const useAppStore = defineStore('app', () => {
   const judgingActive = ref(false)
   const resultsVisible = ref(false)
   const adminVerified = ref(false)
+  const competitionDeadline = ref<string | null>(null)
 
   const isParticipant = computed(() =>
     user.value ? PARTICIPANT_ROLES.has(user.value.role) : false,
@@ -57,6 +58,7 @@ export const useAppStore = defineStore('app', () => {
     if (!data) return
     judgingActive.value = data.find((s: any) => s.key === 'judging_active')?.value === 'true'
     resultsVisible.value = data.find((s: any) => s.key === 'results_visible')?.value === 'true'
+    competitionDeadline.value = data.find((s: any) => s.key === 'competition_deadline')?.value || null
   }
 
   async function loadTeam() {
@@ -72,6 +74,7 @@ export const useAppStore = defineStore('app', () => {
     judgingActive,
     resultsVisible,
     adminVerified,
+    competitionDeadline,
     isParticipant,
     setUser,
     clearUser,
