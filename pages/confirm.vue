@@ -19,27 +19,29 @@ definePageMeta({ layout: 'default' })
 
 const statusMessage = ref('Logger inn…')
 const sb = useSupabaseClient()
+const session = useSupabaseSession()
 const store = useAppStore()
 const router = useRouter()
 
-onMounted(async () => {
-  const { data: { session } } = await sb.auth.getSession()
-
-  if (!session) {
-    statusMessage.value = 'Noe gikk galt. Prøv igjen.'
-    setTimeout(() => router.push('/login'), 2000)
-    return
-  }
-
-  const err = await store.loadProfile(session.user.email!)
+watch(session, async (s) => {
+  if (!s) return
+  const err = await store.loadProfile(s.user.email!)
   if (err) {
-    await sb.auth.signOut()
     statusMessage.value = 'Fant ikke brukerprofilen din. Ta kontakt med admin.'
+    await sb.auth.signOut()
     setTimeout(() => router.push('/login'), 3000)
     return
   }
-
   await store.loadSettings()
   router.push('/app/hjem')
+}, { immediate: true })
+
+onMounted(() => {
+  setTimeout(() => {
+    if (!session.value) {
+      statusMessage.value = 'Noe gikk galt. Prøv igjen.'
+      setTimeout(() => router.push('/login'), 2000)
+    }
+  }, 6000)
 })
 </script>
