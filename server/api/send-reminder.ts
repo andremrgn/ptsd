@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     const firstName = person.full_name.split(' ')[0]
 
     await resend.emails.send({
-      from: 'Sølvposten <solvposten@resend.dev>',
+      from: 'Sølvposten <onboarding@resend.dev>',
       to: person.email,
       subject: message,
       html: `
