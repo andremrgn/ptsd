@@ -154,7 +154,11 @@ function handleImageSelect(e: Event) {
 function handleDrop(e: DragEvent) {
   dragging.value = false
   const file = e.dataTransfer?.files[0]
-  if (file?.type.startsWith('image/')) previewFile(file)
+  if (!file) return
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowed.includes(file.type)) { toast('Kun bilder er tillatt (jpg, png, webp)', true); return }
+  if (file.size > 10 * 1024 * 1024) { toast('Bildet er for stort (maks 10 MB)', true); return }
+  previewFile(file)
 }
 
 function previewFile(file: File) {

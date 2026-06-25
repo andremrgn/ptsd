@@ -37,7 +37,8 @@ watch(session, async (s) => {
     await store.loadSettings()
     await store.loadTeam()
     handled = true
-    router.push('/set-password')
+    const dest = s.user.user_metadata?.password_set ? '/app/hjem' : '/set-password'
+    router.push(dest)
   } catch {
     statusMessage.value = 'Noe gikk galt. Prøv igjen.'
     setTimeout(() => router.push('/login'), 3000)
