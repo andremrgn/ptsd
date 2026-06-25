@@ -7,7 +7,6 @@
       </svg>
       <span class="app-logo-text">Morgenstern</span>
     </NuxtLink>
-    <div class="app-role-tag">{{ roleLabel }}</div>
     <div v-if="deadlineCountdown !== null" class="header-deadline">
       <span class="hd-num">{{ deadlineCountdown }}</span>
       <span class="hd-lbl">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
