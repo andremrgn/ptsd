@@ -40,7 +40,7 @@
             {{ loading ? 'Laster…' : showMagicLink ? 'Send innloggingslenke →' : 'Logg inn →' }}
           </button>
           <button class="btn-magic-link" @click="toggleMode">
-            {{ showMagicLink ? '← Logg inn med passord' : 'Første gang? Send meg en innloggingslenke' }}
+            {{ showMagicLink ? '← Logg inn med passord' : 'Første gang eller glemt passord? Send meg en lenke' }}
           </button>
         </div>
       </template>
