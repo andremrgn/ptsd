@@ -144,7 +144,11 @@ async function loadPrevSubs() {
 
 function handleImageSelect(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
-  if (file) previewFile(file)
+  if (!file) return
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowed.includes(file.type)) { toast('Kun bilder er tillatt (jpg, png, webp)', true); return }
+  if (file.size > 10 * 1024 * 1024) { toast('Bildet er for stort (maks 10 MB)', true); return }
+  previewFile(file)
 }
 
 function handleDrop(e: DragEvent) {
@@ -216,6 +220,11 @@ function resetForm() {
 async function handleTeamPhoto(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file || !store.team) return
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  if (!allowed.includes(file.type)) {
+    toast('Kun bilder er tillatt (jpg, png, webp)', true)
+    return
+  }
   toast('Laster opp…')
   try {
     const ext = file.name.split('.').pop()?.toLowerCase()

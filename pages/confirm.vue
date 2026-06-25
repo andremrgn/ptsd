@@ -26,7 +26,6 @@ let handled = false
 
 watch(session, async (s) => {
   if (!s) return
-  handled = true
   try {
     const err = await store.loadProfile(s.user.email!)
     if (err) {
@@ -37,7 +36,8 @@ watch(session, async (s) => {
     }
     await store.loadSettings()
     await store.loadTeam()
-    router.push('/app/hjem')
+    handled = true
+    router.push('/set-password')
   } catch {
     statusMessage.value = 'Noe gikk galt. Prøv igjen.'
     setTimeout(() => router.push('/login'), 3000)

@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
-  const sb = createClient(config.public.supabase.url, config.supabaseServiceKey || config.public.supabase.key)
+  if (!config.supabaseServiceKey) {
+    throw createError({ statusCode: 500, message: 'Service key not configured' })
+  }
+  const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
   const resend = new Resend(config.resendApiKey)
 
   // Hent alle team
@@ -55,6 +58,7 @@ export default defineEventHandler(async (event) => {
 
     const person = kreatorer[Math.floor(Math.random() * kreatorer.length)]
     const firstName = person.full_name.split(' ')[0]
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
     await resend.emails.send({
       from: 'Sølvposten <solvposten@mrgn.no>',
