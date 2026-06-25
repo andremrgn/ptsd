@@ -81,6 +81,34 @@
         </div>
       </div>
 
+      <!-- Users / reminders -->
+      <div class="mb1 mt2">
+        <div class="section-title">Brukere</div>
+        <div v-if="usersLoading" class="loading">Laster…</div>
+        <div v-else class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th>Rolle</th><th></th></tr></thead>
+            <tbody>
+              <tr v-for="u in allUsers" :key="u.email">
+                <td>{{ u.full_name }}</td>
+                <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                <td>{{ u.teamName }}</td>
+                <td style="color:var(--muted);font-size:0.78rem">{{ u.role }}</td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-outline"
+                    style="padding:0.3rem 0.65rem;font-size:0.65rem"
+                    :disabled="reminderSending === u.email"
+                    @click="sendReminder(u.email)"
+                  >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                </td>
+              </tr>
+              <tr v-if="!allUsers.length"><td colspan="5" style="text-align:center;color:var(--muted)">Ingen brukere</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- All submissions -->
       <div class="mb1 mt2">
         <div class="section-title">Alle bidrag</div>
@@ -121,6 +149,9 @@ const juryCodes = ref<any[]>([])
 const allSubs = ref<any[]>([])
 const juryLoading = ref(true)
 const subsLoading = ref(true)
+const usersLoading = ref(true)
+const allUsers = ref<any[]>([])
+const reminderSending = ref<string | null>(null)
 const newJuryName = ref('')
 const newJuryCode = ref('')
 const deadline = ref(store.competitionDeadline || '')
@@ -163,7 +194,7 @@ async function loadAdminData() {
   stats.subs = sc ?? 0
   stats.jury = jc ?? 0
   stats.scores = pc ?? 0
-  await Promise.all([loadJuryTable(), loadSubTable()])
+  await Promise.all([loadJuryTable(), loadSubTable(), loadUsersTable()])
 }
 
 async function loadJuryTable() {
@@ -171,6 +202,21 @@ async function loadJuryTable() {
   const { data } = await sb.from('jury_codes').select('*').order('created_at')
   juryCodes.value = data || []
   juryLoading.value = false
+}
+
+async function loadUsersTable() {
+  usersLoading.value = true
+  const [{ data: users }, { data: teams }] = await Promise.all([
+    sb.from('users').select('full_name, email, role, team_id').order('full_name'),
+    sb.from('teams').select('id, name'),
+  ])
+  const teamsById: Record<string, string> = {}
+  ;(teams || []).forEach((t: any) => { teamsById[t.id] = t.name })
+  allUsers.value = (users || []).map((u: any) => ({
+    ...u,
+    teamName: u.team_id ? (teamsById[u.team_id] || '–') : '–',
+  }))
+  usersLoading.value = false
 }
 
 async function loadSubTable() {
@@ -229,6 +275,14 @@ async function removeJuryCode(id: string) {
   stats.jury--
   loadJuryTable()
   toast('Fjernet')
+}
+
+async function sendReminder(email: string) {
+  reminderSending.value = email
+  const { error } = await useFetch('/api/send-reminder-user', { method: 'POST', body: { email } })
+  reminderSending.value = null
+  if (error.value) { toast('Feil: ' + error.value.message, true); return }
+  toast('Påminnelse sendt!')
 }
 
 async function deleteSub(id: string) {
