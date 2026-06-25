@@ -106,6 +106,15 @@
             >
               👏 <span class="kudos-count">{{ item.kudosCount }}</span>
             </button>
+            <button
+              class="kudos-btn dislike-btn"
+              :class="{ given: item.myDislike }"
+              :disabled="item.isMyTeam"
+              :title="item.isMyTeam ? 'Ikke til eget team' : ''"
+              @click="toggleDislike(item)"
+            >
+              👎 <span class="kudos-count">{{ item.dislikeCount }}</span>
+            </button>
             <a :href="item.sub.link" target="_blank" class="feed-link">Se innlegg →</a>
           </div>
         </div>
@@ -152,13 +161,14 @@ const quote = ref('')
 async function loadData() {
   lbLoading.value = true
   feedLoading.value = true
-  const [{ data: teams }, { data: subs }, { data: allSubs }, { data: pts }, { data: allKudos }] =
+  const [{ data: teams }, { data: subs }, { data: allSubs }, { data: pts }, { data: allKudos }, { data: allDislikes }] =
     await Promise.all([
       sb.from('teams').select('*').order('name'),
       sb.from('submissions').select('*').order('submitted_at', { ascending: false }).limit(15),
       sb.from('submissions').select('id,team_id'),
       sb.from('postetekster').select('id,submission_id'),
       sb.from('kudos').select('submission_id,from_email'),
+      sb.from('dislikes').select('submission_id,from_email'),
     ])
 
   if (!teams) { lbLoading.value = false; feedLoading.value = false; return }
@@ -180,6 +190,12 @@ async function loadData() {
     if (tid) kudosByTeam[tid] = (kudosByTeam[tid] || 0) + 1
     if (!kudosBySubmission[k.submission_id]) kudosBySubmission[k.submission_id] = []
     kudosBySubmission[k.submission_id].push(k.from_email)
+  })
+
+  const dislikesBySubmission: Record<string, string[]> = {}
+  ;(allDislikes || []).forEach((d: any) => {
+    if (!dislikesBySubmission[d.submission_id]) dislikesBySubmission[d.submission_id] = []
+    dislikesBySubmission[d.submission_id].push(d.from_email)
   })
 
   const sorted = [...teams].sort((a: any, b: any) => (subsByTeam[b.id] || 0) - (subsByTeam[a.id] || 0))
@@ -207,14 +223,17 @@ async function loadData() {
   feed.value = (subs || []).map((s: any) => {
     const team = teamsById[s.team_id] || { name: 'Ukjent' }
     const givers = kudosBySubmission[s.id] || []
+    const dislikers = dislikesBySubmission[s.id] || []
     return {
       sub: s,
       teamName: team.name,
       teamPhoto: team.image_url || avatarUrl(team.name, 38),
       ptCount: ptCount[s.id] || 0,
       myKudos: givers.includes(user.value?.email || ''),
+      myDislike: dislikers.includes(user.value?.email || ''),
       isMyTeam: team.id === user.value?.team_id,
       kudosCount: givers.length,
+      dislikeCount: dislikers.length,
     }
   })
   feedLoading.value = false
@@ -229,6 +248,28 @@ async function toggleKudos(item: any) {
     await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
   } else {
     await sb.from('kudos').insert({ submission_id: item.sub.id, from_email: user.value?.email })
+    if (item.myDislike) {
+      item.myDislike = false
+      item.dislikeCount -= 1
+      await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
+    }
+  }
+}
+
+async function toggleDislike(item: any) {
+  if (item.isMyTeam) return
+  const hasGiven = item.myDislike
+  item.myDislike = !hasGiven
+  item.dislikeCount += hasGiven ? -1 : 1
+  if (hasGiven) {
+    await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
+  } else {
+    await sb.from('dislikes').insert({ submission_id: item.sub.id, from_email: user.value?.email })
+    if (item.myKudos) {
+      item.myKudos = false
+      item.kudosCount -= 1
+      await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
+    }
   }
 }
 

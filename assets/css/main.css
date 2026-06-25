@@ -137,6 +137,8 @@ h1, h2, h3, p { margin: 0; }
 .kudos-btn:hover:not(:disabled) { border-color: var(--coral); color: var(--coral); }
 .kudos-btn.given { background: var(--navy); color: var(--cream); border-color: var(--navy); }
 .kudos-btn:disabled { opacity: 0.4; cursor: default; }
+.dislike-btn:hover:not(:disabled) { border-color: #888; color: #888; }
+.dislike-btn.given { background: #555; color: var(--cream); border-color: #555; }
 .kudos-count { font-weight: 700; }
 .feed-link { margin-left: auto; font-size: 0.8rem; color: var(--coral); font-weight: 600; text-decoration: none; }
 .feed-link:hover { text-decoration: underline; }
