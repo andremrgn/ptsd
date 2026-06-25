@@ -25,7 +25,7 @@
       <div class="form-group">
         <label class="form-label">Bekreft passord</label>
         <input
-          v-model="confirm"
+          v-model="confirmPw"
           type="password"
           class="form-input"
           placeholder="Gjenta passordet"
@@ -48,47 +48,54 @@ definePageMeta({ layout: 'default' })
 
 const sb = useSupabaseClient()
 const session = useSupabaseSession()
+const authUser = useSupabaseUser()
 const router = useRouter()
 
 const password = ref('')
-const confirm = ref('')
+const confirmPw = ref('')
 const error = ref('')
 const loading = ref(false)
 
 onMounted(() => {
-  if (!session.value) router.push('/login')
-})
-
-watch(session, (s, prev) => {
-  if (prev !== undefined && s === null) router.push('/login')
-})
-
-async function submit() {
-  error.value = ''
   if (!session.value) {
     router.push('/login')
     return
   }
-  if (password.value.length < 8) {
-    error.value = 'Passordet må være minst 8 tegn.'
-    return
+  // Already set password — go straight in
+  if (authUser.value?.user_metadata?.password_set) {
+    router.push('/app/hjem')
   }
-  if (password.value !== confirm.value) {
-    error.value = 'Passordene er ikke like.'
-    return
-  }
+})
+
+// Redirect to login if session expires while on this page
+watch(session, (s, prev) => {
+  if (prev !== undefined && s === null) router.push('/login')
+})
+
+async function refreshAndRedirect() {
+  try { await sb.auth.refreshSession() } catch {}
+  router.push('/app/hjem')
+}
+
+async function submit() {
+  error.value = ''
+  if (!session.value) { router.push('/login'); return }
+  if (password.value.length < 8) { error.value = 'Passordet må være minst 8 tegn.'; return }
+  if (password.value !== confirmPw.value) { error.value = 'Passordene er ikke like.'; return }
+
   loading.value = true
   const { error: err } = await sb.auth.updateUser({ password: password.value, data: { password_set: true } })
   if (err) {
     loading.value = false
     if (err.message.toLowerCase().includes('different from the old password')) {
-      error.value = 'Nytt passord må være forskjellig fra det gamle passordet.'
+      // Password was already set in a previous attempt — refresh JWT and proceed
+      await refreshAndRedirect()
     } else {
       error.value = err.message
     }
     return
   }
-  await sb.auth.refreshSession()
-  window.location.href = '/app/hjem'
+  // Refresh JWT so auth middleware sees password_set: true before navigating
+  await refreshAndRedirect()
 }
 </script>
