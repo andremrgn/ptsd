@@ -3,10 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 
 const MESSAGES = [
   'Har\'u noen postetekster for en kompis eller?',
-  'Nå erre vel noen postetekster som ligger og roper etter litt oppmerksomhet?',
-  'Kan vel ikke bare være meg som er sulten på noen postetekster?',
-  'Husk at Sølvposten ikke dømmer — men juryen gjør det.',
-  'Finnes det en postetekst gjemt i skrivebordsskuffen din, mon tro?',
+  'Nå erre vel noen postetekster som ligger og roper etter noe oppmerksomhet?',
+  'Kan vel ikke bare være meg som er sulten på noe postetekster?',
 ]
 
 export default defineEventHandler(async (event) => {
