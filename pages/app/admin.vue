@@ -191,10 +191,14 @@ async function removeJuryCode(id: string) {
 
 async function deleteSub(id: string) {
   if (!confirm('Slette dette bidraget?')) return
-  await sb.from('postetekster').delete().eq('submission_id', id)
-  await sb.from('scores').delete().eq('submission_id', id)
-  await sb.from('kudos').delete().eq('submission_id', id)
-  await sb.from('dislikes').delete().eq('submission_id', id)
+  const deletes = await Promise.all([
+    sb.from('postetekster').delete().eq('submission_id', id),
+    sb.from('scores').delete().eq('submission_id', id),
+    sb.from('kudos').delete().eq('submission_id', id),
+    sb.from('dislikes').delete().eq('submission_id', id),
+  ])
+  const childError = deletes.find(r => r.error)?.error
+  if (childError) { toast('Feil: ' + childError.message, true); return }
   const { error } = await sb.from('submissions').delete().eq('id', id)
   if (error) { toast('Feil: ' + error.message, true); return }
   stats.subs--

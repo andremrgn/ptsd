@@ -41,6 +41,10 @@ const loading = ref(true)
 const results = ref<any[]>([])
 
 onMounted(async () => {
+  if (!store.resultsVisible && !store.user?.is_admin) {
+    navigateTo('/app/hjem')
+    return
+  }
   const [{ data: subs }, { data: scores }, { data: teams }] = await Promise.all([
     sb.from('submissions').select('*'),
     sb.from('scores').select('submission_id,score'),

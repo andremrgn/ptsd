@@ -34,11 +34,6 @@ export function useAuth() {
       return 'Bruk din @mrgn.no-adresse.'
     }
 
-    const { data: profile } = await sb.from('users').select('email').eq('email', email).single()
-    if (!profile) {
-      return 'Fant ikke denne e-postadressen. Ta kontakt med admin.'
-    }
-
     const { error } = await sb.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: 'https://solvposten.vercel.app/confirm' },

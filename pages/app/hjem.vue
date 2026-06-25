@@ -278,19 +278,22 @@ async function openSubmission(id: string) {
   imgExpanded.value = false
   subLoading.value = true
   subDetail.value = null
-  const [{ data: sub }, { data: postetekster }] = await Promise.all([
-    sb.from('submissions').select('*').eq('id', id).single(),
-    sb.from('postetekster').select('*').eq('submission_id', id).order('sort_order'),
-  ])
-  if (!sub) { subLoading.value = false; return }
-  const { data: team } = await sb.from('teams').select('*').eq('id', sub.team_id).single()
-  subDetail.value = {
-    sub,
-    postetekster: postetekster || [],
-    teamName: team?.name || 'Ukjent',
-    teamPhoto: team?.image_url || avatarUrl(team?.name || '?', 52),
+  try {
+    const [{ data: sub }, { data: postetekster }] = await Promise.all([
+      sb.from('submissions').select('*').eq('id', id).single(),
+      sb.from('postetekster').select('*').eq('submission_id', id).order('sort_order'),
+    ])
+    if (!sub) return
+    const { data: team } = await sb.from('teams').select('*').eq('id', sub.team_id).single()
+    subDetail.value = {
+      sub,
+      postetekster: postetekster || [],
+      teamName: team?.name || 'Ukjent',
+      teamPhoto: team?.image_url || avatarUrl(team?.name || '?', 52),
+    }
+  } finally {
+    subLoading.value = false
   }
-  subLoading.value = false
 }
 
 function toggleImg(id: string) {

@@ -28,6 +28,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     resendApiKey: '',
     cronSecret: '',
+    supabaseServiceKey: '',
     public: {},
   },
   app: {

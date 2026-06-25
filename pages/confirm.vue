@@ -22,9 +22,11 @@ const sb = useSupabaseClient()
 const session = useSupabaseSession()
 const store = useAppStore()
 const router = useRouter()
+let handled = false
 
 watch(session, async (s) => {
   if (!s) return
+  handled = true
   try {
     const err = await store.loadProfile(s.user.email!)
     if (err) {
@@ -44,7 +46,7 @@ watch(session, async (s) => {
 
 onMounted(() => {
   setTimeout(() => {
-    if (!session.value) {
+    if (!handled) {
       statusMessage.value = 'Noe gikk galt. Prøv igjen.'
       setTimeout(() => router.push('/login'), 2000)
     }

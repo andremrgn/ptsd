@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
-  const sb = createClient(config.public.supabase.url, config.public.supabase.key)
+  const sb = createClient(config.public.supabase.url, config.supabaseServiceKey || config.public.supabase.key)
   const resend = new Resend(config.resendApiKey)
 
   // Hent alle team
