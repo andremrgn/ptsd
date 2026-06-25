@@ -33,31 +33,26 @@ export const useAppStore = defineStore('app', () => {
 
   function setUser(u: AppUser) {
     user.value = u
-    if (import.meta.client) {
-      localStorage.setItem('mg_user', JSON.stringify(u))
-    }
   }
 
   function clearUser() {
     user.value = null
     team.value = null
     adminVerified.value = false
-    if (import.meta.client) {
-      localStorage.removeItem('mg_user')
-    }
   }
 
-  function loadUserFromStorage() {
-    if (!import.meta.client) return
-    const saved = localStorage.getItem('mg_user')
-    if (saved) {
-      try { user.value = JSON.parse(saved) }
-      catch { localStorage.removeItem('mg_user') }
+  async function loadProfile(email: string): Promise<string | null> {
+    const sb = useSupabaseClient()
+    const { data, error } = await sb.from('users').select('*').eq('email', email).single()
+    if (error || !data) {
+      return 'Fant ikke brukerprofilen. Ta kontakt med admin.'
     }
+    user.value = data
+    return null
   }
 
   async function loadSettings() {
-    const sb = useSupabase()
+    const sb = useSupabaseClient()
     const { data } = await sb.from('settings').select('*')
     if (!data) return
     judgingActive.value = data.find((s: any) => s.key === 'judging_active')?.value === 'true'
@@ -66,7 +61,7 @@ export const useAppStore = defineStore('app', () => {
 
   async function loadTeam() {
     if (!user.value?.team_id) return
-    const sb = useSupabase()
+    const sb = useSupabaseClient()
     const { data } = await sb.from('teams').select('*').eq('id', user.value.team_id).single()
     if (data) team.value = data
   }
@@ -80,7 +75,7 @@ export const useAppStore = defineStore('app', () => {
     isParticipant,
     setUser,
     clearUser,
-    loadUserFromStorage,
+    loadProfile,
     loadSettings,
     loadTeam,
   }

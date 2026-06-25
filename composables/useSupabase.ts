@@ -1,11 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-
-let client: SupabaseClient | null = null
-
-export function useSupabase(): SupabaseClient {
-  if (!client) {
-    const config = useRuntimeConfig()
-    client = createClient(config.public.supabaseUrl, config.public.supabaseKey)
-  }
-  return client
+// Thin wrapper for backwards compatibility — bruk useSupabaseClient() direkte i nye filer
+export function useSupabase() {
+  return useSupabaseClient()
 }

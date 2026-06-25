@@ -1,14 +1,11 @@
 import { useAppStore } from '~/stores/app'
 
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async () => {
+  const authUser = useSupabaseUser()
   const store = useAppStore()
-  if (!store.user) {
-    store.loadUserFromStorage()
-  }
-  if (!store.user && to.path !== '/login') {
-    return navigateTo('/login')
-  }
-  if (store.user && to.path === '/login') {
-    return navigateTo('/app/hjem')
+
+  if (authUser.value && !store.user) {
+    await store.loadProfile(authUser.value.email!)
+    await store.loadSettings()
   }
 })
