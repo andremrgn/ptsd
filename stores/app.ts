@@ -7,6 +7,7 @@ export interface AppUser {
   full_name: string
   role: string
   is_admin: boolean
+  password_set: boolean
   team_id: string | null
   nickname: string | null
   favorite_quote: string | null

@@ -5,13 +5,14 @@ export default defineNuxtRouteMiddleware(async () => {
   const store = useAppStore()
 
   if (!authUser.value) return navigateTo('/login')
-
   if (!authUser.value.email) return navigateTo('/login')
-  if (!authUser.value.user_metadata?.password_set) return navigateTo('/set-password')
 
   if (!store.user) {
-    await store.loadProfile(authUser.value.email)
+    const err = await store.loadProfile(authUser.value.email)
+    if (err) return navigateTo('/login')
     await store.loadSettings()
     await store.loadTeam()
   }
+
+  if (!store.user?.password_set) return navigateTo('/set-password')
 })

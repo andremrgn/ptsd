@@ -44,12 +44,14 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from '~/stores/app'
+
 definePageMeta({ layout: 'default' })
 
 const sb = useSupabaseClient()
 const session = useSupabaseSession()
-const authUser = useSupabaseUser()
 const router = useRouter()
+const store = useAppStore()
 
 const password = ref('')
 const confirmPw = ref('')
@@ -62,19 +64,18 @@ onMounted(() => {
     return
   }
   // Already set password — go straight in
-  if (authUser.value?.user_metadata?.password_set) {
+  if (store.user?.password_set) {
     router.push('/app/hjem')
   }
 })
 
-// Redirect to login if session expires while on this page
 watch(session, (s, prev) => {
   if (prev !== undefined && s === null) router.push('/login')
 })
 
-async function refreshAndRedirect() {
-  try { await sb.auth.refreshSession() } catch {}
-  router.push('/app/hjem')
+async function markPasswordSet(email: string) {
+  await sb.from('users').update({ password_set: true }).eq('email', email)
+  if (store.user) store.user.password_set = true
 }
 
 async function submit() {
@@ -84,18 +85,24 @@ async function submit() {
   if (password.value !== confirmPw.value) { error.value = 'Passordene er ikke like.'; return }
 
   loading.value = true
+
   const { error: err } = await sb.auth.updateUser({ password: password.value, data: { password_set: true } })
+
   if (err) {
-    loading.value = false
     if (err.message.toLowerCase().includes('different from the old password')) {
-      // Password was already set in a previous attempt — refresh JWT and proceed
-      await refreshAndRedirect()
+      // Password already set in a previous attempt — mark DB and proceed
+      const email = session.value.user?.email
+      if (email) await markPasswordSet(email)
+      router.push('/app/hjem')
     } else {
+      loading.value = false
       error.value = err.message
     }
     return
   }
-  // Refresh JWT so auth middleware sees password_set: true before navigating
-  await refreshAndRedirect()
+
+  const email = session.value.user?.email
+  if (email) await markPasswordSet(email)
+  router.push('/app/hjem')
 }
 </script>
