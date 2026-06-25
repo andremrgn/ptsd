@@ -279,10 +279,14 @@ async function removeJuryCode(id: string) {
 
 async function sendReminder(email: string) {
   reminderSending.value = email
-  const { error } = await useFetch('/api/send-reminder-user', { method: 'POST', body: { email } })
-  reminderSending.value = null
-  if (error.value) { toast('Feil: ' + error.value.message, true); return }
-  toast('Påminnelse sendt!')
+  try {
+    await $fetch('/api/send-reminder-user', { method: 'POST', body: { email } })
+    toast('Påminnelse sendt!')
+  } catch (e: any) {
+    toast('Feil: ' + (e?.data?.message || e?.message || 'ukjent feil'), true)
+  } finally {
+    reminderSending.value = null
+  }
 }
 
 async function deleteSub(id: string) {
