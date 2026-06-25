@@ -31,13 +31,7 @@
 
     <!-- Main home view -->
     <div v-else class="wrap-narrow">
-      <div class="eyebrow-row">
-        <p class="eyebrow">{{ roleLabel }}</p>
-        <div v-if="deadlineCountdown" class="deadline-pill">
-          <span class="deadline-pill-num">{{ deadlineCountdown.days === 0 ? 'I dag' : deadlineCountdown.days }}</span>
-          <span v-if="deadlineCountdown.days > 0" class="deadline-pill-lbl">{{ deadlineCountdown.days === 1 ? 'dag' : 'dager' }} igjen</span>
-        </div>
-      </div>
+      <p class="eyebrow">{{ roleLabel }}</p>
       <h1 class="display">Hei, {{ firstName }}!</h1>
       <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
 
@@ -152,16 +146,6 @@ const user = computed(() => store.user)
 const firstName = computed(() => user.value?.full_name.split(' ')[0] || '')
 const roleLabel = computed(() => user.value ? (ROLE_LABELS[user.value.role] || user.value.role) : '–')
 
-const deadlineCountdown = computed(() => {
-  if (!store.competitionDeadline || store.judgingActive) return null
-  const deadline = new Date(store.competitionDeadline)
-  deadline.setHours(0, 0, 0, 0)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
-  if (days < 0) return null
-  return { days }
-})
 
 const MOTIVATING = [
   '«Det er ikke om du blir slått ned. Det handler om om du reiser deg igjen.» — Vince Lombardi',
@@ -321,39 +305,3 @@ function toggleImg(id: string) {
 onMounted(loadData)
 </script>
 
-<style scoped>
-.eyebrow-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.eyebrow-row .eyebrow {
-  margin: 0;
-}
-
-.deadline-pill {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  background: rgba(237, 85, 92, 0.08);
-  border: 1px solid rgba(237, 85, 92, 0.2);
-  border-radius: 2px;
-  padding: 0.2rem 0.6rem;
-}
-
-.deadline-pill-num {
-  font-size: 0.8rem;
-  font-weight: 900;
-  color: var(--coral);
-  letter-spacing: -0.01em;
-}
-
-.deadline-pill-lbl {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--coral);
-  opacity: 0.75;
-}
-</style>
