@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     dirs: ['stores'],
   },
   runtimeConfig: {
+    resendApiKey: '',
+    cronSecret: '',
     public: {
       supabaseUrl: '',
       supabaseKey: '',
