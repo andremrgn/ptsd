@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -7,9 +8,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: 'Service key not configured' })
   }
 
-  // Verify the caller is a logged-in Supabase user
-  const authHeader = getHeader(event, 'authorization')
-  if (!authHeader?.startsWith('Bearer ')) {
+  const caller = await serverSupabaseUser(event)
+  if (!caller) {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 

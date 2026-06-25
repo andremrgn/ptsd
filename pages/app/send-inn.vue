@@ -185,7 +185,8 @@ async function submitEntry() {
 
   submitting.value = true
   try {
-    const fname = `${Date.now()}-${selectedFile.value.name.replace(/[^a-zA-Z0-9.]/g, '_')}`
+    const ext = (selectedFile.value.name.split('.').pop() || 'jpg').replace(/[^a-zA-Z0-9]/g, '')
+    const fname = `${Date.now()}.${ext}`
     const imageUrl = await uploadImage(selectedFile.value, `submissions/${fname}`)
     const { data: sub, error: subErr } = await sb.from('submissions').insert({
       team_id: store.user.team_id,

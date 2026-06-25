@@ -150,7 +150,7 @@ async function loadSubTable() {
 
 async function toggleJudging() {
   const nv = !store.judgingActive
-  const { error } = await sb.from('settings').update({ value: nv ? 'true' : 'false' }).eq('key', 'judging_active')
+  const { error } = await sb.from('settings').upsert({ key: 'judging_active', value: nv ? 'true' : 'false' }, { onConflict: 'key' })
   if (error) { toast('Feil: ' + error.message, true); return }
   store.judgingActive = nv
   toast(nv ? 'Juryering startet!' : 'Juryering stoppet')
