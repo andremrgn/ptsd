@@ -156,13 +156,18 @@ async function loadJurySubs() {
 
 async function setScore(submissionId: string, score: number) {
   scores[submissionId] = score
-  const { error } = await sb.from('scores').upsert({
-    submission_id: submissionId,
-    jury_code_id: juryMember.value.id,
-    score,
-  }, { onConflict: 'submission_id,jury_code_id' })
-  if (error) toast('Feil: ' + error.message, true)
-  else toast('Poeng lagret ✓')
+  const session = await sb.auth.getSession()
+  const token = session.data.session?.access_token
+  try {
+    await $fetch('/api/set-score', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: { submission_id: submissionId, jury_code: juryMember.value.code, score },
+    })
+    toast('Poeng lagret ✓')
+  } catch (err: any) {
+    toast('Feil: ' + (err.data?.message || err.message), true)
+  }
 }
 
 function toggleImg(id: string) {

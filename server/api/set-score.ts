@@ -1,0 +1,54 @@
+import { createClient } from '@supabase/supabase-js'
+
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+
+  if (!config.supabaseServiceKey) {
+    throw createError({ statusCode: 500, message: 'Service key not configured' })
+  }
+
+  // Verify the caller is a logged-in Supabase user
+  const authHeader = getHeader(event, 'authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw createError({ statusCode: 401, message: 'Unauthorized' })
+  }
+
+  const { submission_id, jury_code, score } = await readBody(event)
+  if (!submission_id || !jury_code || typeof score !== 'number' || score < 1 || score > 9) {
+    throw createError({ statusCode: 400, message: 'Ugyldig forespørsel' })
+  }
+
+  const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
+
+  // Validate the jury code exists
+  const { data: juryMember, error: juryErr } = await sb
+    .from('jury_codes')
+    .select('id')
+    .eq('code', jury_code.trim().toUpperCase())
+    .single()
+
+  if (juryErr || !juryMember) {
+    throw createError({ statusCode: 403, message: 'Ugyldig jurykode' })
+  }
+
+  // Verify judging is active
+  const { data: setting } = await sb
+    .from('settings')
+    .select('value')
+    .eq('key', 'judging_active')
+    .single()
+
+  if (setting?.value !== 'true') {
+    throw createError({ statusCode: 403, message: 'Juryering er ikke aktiv' })
+  }
+
+  // Write the score
+  const { error } = await sb.from('scores').upsert(
+    { submission_id, jury_code_id: juryMember.id, score },
+    { onConflict: 'submission_id,jury_code_id' },
+  )
+
+  if (error) throw createError({ statusCode: 500, message: error.message })
+
+  return { ok: true }
+})
