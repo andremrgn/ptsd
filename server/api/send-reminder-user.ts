@@ -1,6 +1,5 @@
 import { Resend } from 'resend'
-import { createClient } from '@supabase/supabase-js'
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseClient } from '#supabase/server'
 
 const MESSAGES = [
   'Har\'u noen postetekster for en kompis eller?',
@@ -14,8 +13,7 @@ export default defineEventHandler(async (event) => {
   const caller = await serverSupabaseUser(event)
   if (!caller?.email) throw createError({ statusCode: 401, message: 'Unauthorized' })
 
-  if (!config.supabaseServiceKey) throw createError({ statusCode: 500, message: 'Service key not configured' })
-  const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
+  const sb = await serverSupabaseClient(event)
 
   const { data: callerProfile } = await sb.from('users').select('is_admin').eq('email', caller.email).single()
   if (!callerProfile?.is_admin) throw createError({ statusCode: 403, message: 'Forbidden' })
