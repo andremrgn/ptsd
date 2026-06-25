@@ -41,7 +41,7 @@ export function useAuth() {
 
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/confirm` },
+      options: { emailRedirectTo: 'https://solvposten.vercel.app/confirm' },
     })
 
     if (error) return error.message
