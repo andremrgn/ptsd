@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
 
-definePageMeta({ middleware: 'auth', layout: 'app' })
+definePageMeta({ middleware: ['auth', 'admin'], layout: 'app' })
 
 const store = useAppStore()
 const sb = useSupabase()
@@ -194,6 +194,7 @@ async function deleteSub(id: string) {
   await sb.from('postetekster').delete().eq('submission_id', id)
   await sb.from('scores').delete().eq('submission_id', id)
   await sb.from('kudos').delete().eq('submission_id', id)
+  await sb.from('dislikes').delete().eq('submission_id', id)
   const { error } = await sb.from('submissions').delete().eq('id', id)
   if (error) { toast('Feil: ' + error.message, true); return }
   stats.subs--

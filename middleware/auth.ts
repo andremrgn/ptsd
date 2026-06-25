@@ -5,7 +5,9 @@ export default defineNuxtRouteMiddleware(async () => {
   const store = useAppStore()
 
   if (authUser.value && !store.user) {
-    await store.loadProfile(authUser.value.email!)
+    if (!authUser.value.email) return navigateTo('/login')
+    await store.loadProfile(authUser.value.email)
     await store.loadSettings()
+    await store.loadTeam()
   }
 })

@@ -25,15 +25,21 @@ const router = useRouter()
 
 watch(session, async (s) => {
   if (!s) return
-  const err = await store.loadProfile(s.user.email!)
-  if (err) {
-    statusMessage.value = 'Fant ikke brukerprofilen din. Ta kontakt med admin.'
-    await sb.auth.signOut()
+  try {
+    const err = await store.loadProfile(s.user.email!)
+    if (err) {
+      statusMessage.value = 'Fant ikke brukerprofilen din. Ta kontakt med admin.'
+      await sb.auth.signOut()
+      setTimeout(() => router.push('/login'), 3000)
+      return
+    }
+    await store.loadSettings()
+    await store.loadTeam()
+    router.push('/app/hjem')
+  } catch {
+    statusMessage.value = 'Noe gikk galt. Prøv igjen.'
     setTimeout(() => router.push('/login'), 3000)
-    return
   }
-  await store.loadSettings()
-  router.push('/app/hjem')
 }, { immediate: true })
 
 onMounted(() => {
