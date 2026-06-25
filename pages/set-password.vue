@@ -77,7 +77,11 @@ async function submit() {
   const { error: err } = await sb.auth.updateUser({ password: password.value, data: { password_set: true } })
   loading.value = false
   if (err) {
-    error.value = err.message
+    if (err.message.toLowerCase().includes('different from the old password')) {
+      error.value = 'Nytt passord må være forskjellig fra det gamle passordet.'
+    } else {
+      error.value = err.message
+    }
     return
   }
   window.location.href = '/app/hjem'
