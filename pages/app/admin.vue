@@ -60,22 +60,24 @@
         <div class="section-title">Jurymedlemmer</div>
         <div class="add-row">
           <input v-model="newJuryName" type="text" class="form-input" placeholder="Navn" />
+          <input v-model="newJuryEmail" type="email" class="form-input" placeholder="E-post" />
           <input v-model="newJuryCode" type="text" class="form-input" placeholder="Kode (auto)" style="max-width:155px" />
           <button class="btn btn-sm" @click="addJuryCode">+ Legg til</button>
         </div>
         <div v-if="juryLoading" class="loading">Laster…</div>
         <div v-else class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Navn</th><th>Kode</th><th>Handling</th></tr></thead>
+            <thead><tr><th>Navn</th><th>E-post</th><th>Kode</th><th>Handling</th></tr></thead>
             <tbody>
               <tr v-for="j in juryCodes" :key="j.id">
                 <td>{{ j.jury_name }}</td>
+                <td style="color:var(--muted);font-size:0.78rem">{{ j.email || '–' }}</td>
                 <td><code>{{ j.code }}</code></td>
                 <td>
                   <button class="btn btn-sm btn-danger" style="padding:0.3rem 0.65rem;font-size:0.65rem" @click="removeJuryCode(j.id)">Fjern</button>
                 </td>
               </tr>
-              <tr v-if="!juryCodes.length"><td colspan="3" style="text-align:center;color:var(--muted)">Ingen jurymedlemmer ennå</td></tr>
+              <tr v-if="!juryCodes.length"><td colspan="4" style="text-align:center;color:var(--muted)">Ingen jurymedlemmer ennå</td></tr>
             </tbody>
           </table>
         </div>
@@ -153,6 +155,7 @@ const usersLoading = ref(true)
 const allUsers = ref<any[]>([])
 const reminderSending = ref<string | null>(null)
 const newJuryName = ref('')
+const newJuryEmail = ref('')
 const newJuryCode = ref('')
 const deadline = ref(store.competitionDeadline || '')
 
@@ -259,9 +262,11 @@ function randomCode() {
 async function addJuryCode() {
   if (!newJuryName.value.trim()) { toast('Legg inn et navn', true); return }
   const code = (newJuryCode.value.trim().toUpperCase()) || randomCode()
-  const { error } = await sb.from('jury_codes').insert({ jury_name: newJuryName.value.trim(), code })
+  const email = newJuryEmail.value.trim().toLowerCase() || null
+  const { error } = await sb.from('jury_codes').insert({ jury_name: newJuryName.value.trim(), code, email })
   if (error) { toast('Feil: ' + error.message, true); return }
   newJuryName.value = ''
+  newJuryEmail.value = ''
   newJuryCode.value = ''
   stats.jury++
   loadJuryTable()
@@ -291,8 +296,13 @@ async function sendReminder(email: string) {
 
 async function deleteSub(id: string) {
   if (!confirm('Slette dette bidraget?')) return
+  const sub = allSubs.value.find((s: any) => s.id === id)
   const { error } = await sb.from('submissions').delete().eq('id', id)
   if (error) { toast('Feil: ' + error.message, true); return }
+  if (sub?.image_url) {
+    const match = sub.image_url.match(/\/public\/uploads\/(.+)$/)
+    if (match) sb.storage.from('uploads').remove([match[1]])
+  }
   stats.subs--
   loadSubTable()
   toast('Bidrag slettet')

@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   const resend = new Resend(config.resendApiKey)
   const message = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
   const firstName = person.full_name.split(' ')[0]
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
   const { error } = await resend.emails.send({
     from: 'Sølvposten <solvposten@mrgn.no>',

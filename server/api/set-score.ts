@@ -20,15 +20,19 @@ export default defineEventHandler(async (event) => {
 
   const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
 
-  // Validate the jury code exists
+  // Validate the jury code exists and belongs to the caller
   const { data: juryMember, error: juryErr } = await sb
     .from('jury_codes')
-    .select('id')
+    .select('id, email')
     .eq('code', jury_code.trim().toUpperCase())
     .single()
 
   if (juryErr || !juryMember) {
     throw createError({ statusCode: 403, message: 'Ugyldig jurykode' })
+  }
+
+  if (juryMember.email && juryMember.email.toLowerCase() !== caller.email?.toLowerCase()) {
+    throw createError({ statusCode: 403, message: 'Denne jurykoden tilhører ikke din konto' })
   }
 
   // Verify judging is active

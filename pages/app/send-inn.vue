@@ -185,7 +185,8 @@ async function submitEntry() {
 
   submitting.value = true
   try {
-    const ext = (selectedFile.value.name.split('.').pop() || 'jpg').replace(/[^a-zA-Z0-9]/g, '')
+    const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
+    const ext = MIME_EXT[selectedFile.value.type] || 'jpg'
     const fname = `${Date.now()}.${ext}`
     const imageUrl = await uploadImage(selectedFile.value, `submissions/${fname}`)
     const { data: sub, error: subErr } = await sb.from('submissions').insert({

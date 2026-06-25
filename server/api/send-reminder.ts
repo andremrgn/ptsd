@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
 
     const person = kreatorer[Math.floor(Math.random() * kreatorer.length)]
     const firstName = person.full_name.split(' ')[0]
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
     await resend.emails.send({
       from: 'Sølvposten <solvposten@mrgn.no>',

@@ -109,14 +109,15 @@ const expandedImages = ref(new Set<string>())
 async function juryLogin() {
   juryError.value = ''
   juryLoading.value = true
-  const { data, error } = await sb.from('jury_codes').select('*').eq('code', juryCode.value.trim().toUpperCase()).single()
-  juryLoading.value = false
-  if (error || !data) {
-    juryError.value = 'Ugyldig jurykode. Prøv igjen.'
-    return
+  try {
+    const data = await $fetch('/api/validate-jury-code', { method: 'POST', body: { code: juryCode.value.trim() } })
+    juryMember.value = data
+    if (store.judgingActive) loadJurySubs()
+  } catch (err: any) {
+    juryError.value = err.data?.message || 'Ugyldig jurykode. Prøv igjen.'
+  } finally {
+    juryLoading.value = false
   }
-  juryMember.value = data
-  if (store.judgingActive) loadJurySubs()
 }
 
 function juryLogout() {

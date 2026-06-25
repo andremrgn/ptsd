@@ -55,6 +55,10 @@ const confirm = ref('')
 const error = ref('')
 const loading = ref(false)
 
+onMounted(() => {
+  if (!session.value) router.push('/login')
+})
+
 watch(session, (s, prev) => {
   if (prev !== undefined && s === null) router.push('/login')
 })

@@ -23,6 +23,7 @@ const session = useSupabaseSession()
 const store = useAppStore()
 const router = useRouter()
 let handled = false
+let fallbackTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(session, async (s) => {
   if (!s) return
@@ -37,6 +38,7 @@ watch(session, async (s) => {
     await store.loadSettings()
     await store.loadTeam()
     handled = true
+    if (fallbackTimer) clearTimeout(fallbackTimer)
     const dest = s.user.user_metadata?.password_set ? '/app/hjem' : '/set-password'
     router.push(dest)
   } catch {
@@ -46,7 +48,7 @@ watch(session, async (s) => {
 }, { immediate: true })
 
 onMounted(() => {
-  setTimeout(() => {
+  fallbackTimer = setTimeout(() => {
     if (!handled) {
       statusMessage.value = 'Noe gikk galt. Prøv igjen.'
       setTimeout(() => router.push('/login'), 2000)
