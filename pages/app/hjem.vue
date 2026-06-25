@@ -35,6 +35,19 @@
       <h1 class="display">Hei, {{ firstName }}!</h1>
       <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
 
+      <div v-if="deadlineCountdown" class="deadline-block">
+        <template v-if="deadlineCountdown.days === 0">
+          <span class="deadline-today">I dag er siste frist!</span>
+        </template>
+        <template v-else>
+          <span class="deadline-num">{{ deadlineCountdown.days }}</span>
+          <div class="deadline-labels">
+            <span class="deadline-unit">{{ deadlineCountdown.days === 1 ? 'dag' : 'dager' }}</span>
+            <span class="deadline-lbl">til innsendingsfristen</span>
+          </div>
+        </template>
+      </div>
+
       <div style="margin-top:2rem">
         <div v-if="lbLoading" class="loading">Laster oversikt…</div>
         <table v-else class="leaderboard">
@@ -145,6 +158,17 @@ const imgExpanded = ref(false)
 const user = computed(() => store.user)
 const firstName = computed(() => user.value?.full_name.split(' ')[0] || '')
 const roleLabel = computed(() => user.value ? (ROLE_LABELS[user.value.role] || user.value.role) : '–')
+
+const deadlineCountdown = computed(() => {
+  if (!store.competitionDeadline || store.judgingActive) return null
+  const deadline = new Date(store.competitionDeadline)
+  deadline.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
+  if (days < 0) return null
+  return { days }
+})
 
 const MOTIVATING = [
   '«Det er ikke om du blir slått ned. Det handler om om du reiser deg igjen.» — Vince Lombardi',
@@ -303,3 +327,45 @@ function toggleImg(id: string) {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.deadline-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.deadline-num {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--coral);
+}
+
+.deadline-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.deadline-unit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--coral);
+  line-height: 1.2;
+}
+
+.deadline-lbl {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+.deadline-today {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--coral);
+}
+</style>
