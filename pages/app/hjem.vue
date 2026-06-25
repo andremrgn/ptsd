@@ -31,22 +31,15 @@
 
     <!-- Main home view -->
     <div v-else class="wrap-narrow">
-      <p class="eyebrow">{{ roleLabel }}</p>
+      <div class="eyebrow-row">
+        <p class="eyebrow">{{ roleLabel }}</p>
+        <div v-if="deadlineCountdown" class="deadline-pill">
+          <span class="deadline-pill-num">{{ deadlineCountdown.days === 0 ? 'I dag' : deadlineCountdown.days }}</span>
+          <span v-if="deadlineCountdown.days > 0" class="deadline-pill-lbl">{{ deadlineCountdown.days === 1 ? 'dag' : 'dager' }} igjen</span>
+        </div>
+      </div>
       <h1 class="display">Hei, {{ firstName }}!</h1>
       <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
-
-      <div v-if="deadlineCountdown" class="deadline-block">
-        <template v-if="deadlineCountdown.days === 0">
-          <span class="deadline-today">I dag er siste frist!</span>
-        </template>
-        <template v-else>
-          <span class="deadline-num">{{ deadlineCountdown.days }}</span>
-          <div class="deadline-labels">
-            <span class="deadline-unit">{{ deadlineCountdown.days === 1 ? 'dag' : 'dager' }}</span>
-            <span class="deadline-lbl">til innsendingsfristen</span>
-          </div>
-        </template>
-      </div>
 
       <div style="margin-top:2rem">
         <div v-if="lbLoading" class="loading">Laster oversikt…</div>
@@ -329,43 +322,38 @@ onMounted(loadData)
 </script>
 
 <style scoped>
-.deadline-block {
+.eyebrow-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1.25rem;
+  flex-wrap: wrap;
 }
 
-.deadline-num {
-  font-size: 3rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--coral);
+.eyebrow-row .eyebrow {
+  margin: 0;
 }
 
-.deadline-labels {
+.deadline-pill {
   display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
+  align-items: baseline;
+  gap: 0.3rem;
+  background: rgba(237, 85, 92, 0.08);
+  border: 1px solid rgba(237, 85, 92, 0.2);
+  border-radius: 2px;
+  padding: 0.2rem 0.6rem;
 }
 
-.deadline-unit {
-  font-size: 1rem;
-  font-weight: 700;
+.deadline-pill-num {
+  font-size: 0.8rem;
+  font-weight: 900;
   color: var(--coral);
-  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-.deadline-lbl {
-  font-size: 0.78rem;
-  color: var(--muted);
-  letter-spacing: 0.01em;
-}
-
-.deadline-today {
-  font-size: 1rem;
-  font-weight: 700;
+.deadline-pill-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--coral);
+  opacity: 0.75;
 }
 </style>
