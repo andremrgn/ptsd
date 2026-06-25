@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
-const SUPABASE_URL = 'https://jgdkjqvvcayrjtcapxrb.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnZGtqcXZ2Y2F5cmp0Y2FweHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNTU0MjEsImV4cCI6MjA5NjgzMTQyMX0.WYByow1BZpsicnCtoe9w50SDiUFR5iGJx3fwLp15fY8'
-const RESEND_KEY = 're_cPwtqCUV_EYg9JR4KQ1FW25xqCSFCW97G'
+const SUPABASE_URL = process.env.NUXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.NUXT_PUBLIC_SUPABASE_KEY
+const RESEND_KEY = process.env.RESEND_API_KEY
+
+if (!SUPABASE_URL || !SUPABASE_KEY || !RESEND_KEY) {
+  console.error('Mangler env-variabler. Kjør: NUXT_PUBLIC_SUPABASE_URL=... NUXT_PUBLIC_SUPABASE_KEY=... RESEND_API_KEY=... node scripts/send-now.mjs')
+  process.exit(1)
+}
 
 const MESSAGES = [
   'Har\'u noen postetekster for en kompis eller?',
