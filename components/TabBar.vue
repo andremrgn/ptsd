@@ -6,8 +6,7 @@
     <NuxtLink
       v-if="store.isParticipant"
       to="/app/send-inn"
-      class="tab-btn"
-      :class="{ active: route.path === '/app/send-inn' }"
+      class="tab-btn-cta"
     >
       Send inn
     </NuxtLink>

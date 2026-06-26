@@ -44,6 +44,7 @@
           <p class="eyebrow">{{ roleLabel }}</p>
           <h1 class="display">Hei, {{ firstName }}!</h1>
           <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
+          <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon →</NuxtLink>
         </div>
         <div v-if="deadlineCountdown !== null" class="deadline-card">
           <span class="deadline-num">{{ deadlineCountdown }}</span>
@@ -414,6 +415,21 @@ onUnmounted(() => {
 .hjem-greeting {
   min-width: 0;
 }
+
+.hjem-cta {
+  display: inline-block;
+  margin-top: 1.25rem;
+  background: var(--coral);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 0.65rem 1.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.hjem-cta:hover { opacity: 0.85; }
 
 .deadline-card {
   display: flex;
