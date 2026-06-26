@@ -44,6 +44,7 @@
           <p class="eyebrow">{{ roleLabel }}</p>
           <h1 class="display">Hei, {{ firstName }}!</h1>
           <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
+          <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon →</NuxtLink>
         </div>
         <div v-if="countdown !== null" class="deadline-card">
           <span class="deadline-num">{{ countdown.days }}</span>
@@ -52,7 +53,6 @@
             <span class="deadline-hms">{{ String(countdown.hours).padStart(2,'0') }}:{{ String(countdown.minutes).padStart(2,'0') }}:{{ String(countdown.seconds).padStart(2,'0') }}</span>
             <span class="deadline-sub">til innleveringsfrist</span>
           </div>
-          <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn →</NuxtLink>
         </div>
       </div>
 
@@ -430,19 +430,18 @@ onUnmounted(() => {
 }
 
 .hjem-cta {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 0.75rem;
-  color: var(--coral);
-  font-size: 0.78rem;
+  display: inline-block;
+  margin-top: 1.25rem;
+  background: var(--coral);
+  color: white;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  padding: 0.65rem 1.25rem;
+  border-radius: 6px;
   text-decoration: none;
-  border-bottom: 1.5px solid currentColor;
-  padding-bottom: 1px;
   transition: opacity 0.15s;
 }
-.hjem-cta:hover { opacity: 0.7; }
+.hjem-cta:hover { opacity: 0.85; }
 
 .deadline-card {
   display: flex;
