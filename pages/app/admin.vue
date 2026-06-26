@@ -247,6 +247,8 @@ const usersByRole = computed(() => {
     const bi = ROLE_ORDER.indexOf(b.role)
     const roleSort = (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
     if (roleSort !== 0) return roleSort
+    const teamSort = (a.teamName || '').localeCompare(b.teamName || '', 'no')
+    if (teamSort !== 0) return teamSort
     return a.full_name.localeCompare(b.full_name, 'no')
   })
   for (const u of sorted) {
