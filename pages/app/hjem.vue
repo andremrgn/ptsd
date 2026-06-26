@@ -2,7 +2,7 @@
   <div class="page-section">
     <!-- Submission detail overlay -->
     <div v-if="selectedSub" class="wrap-narrow">
-      <button class="sub-detail-back" @click="history.back()">← Tilbake</button>
+      <button class="sub-detail-back" @click="closeSubmission()">← Tilbake</button>
       <div v-if="subLoading" class="loading">Laster…</div>
       <template v-else-if="subDetail">
         <div class="sub-detail-header">
@@ -19,13 +19,18 @@
           alt=""
           @click="imgExpanded = !imgExpanded"
         />
+        <a v-if="safeUrl(subDetail.sub.link)" :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-bottom:1.5rem">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Se innleggene på sosiale medier
+        </a>
+
         <div class="sub-detail-tekster">
           <div v-for="(pt, i) in subDetail.postetekster" :key="pt.id" class="sub-detail-tekst">
             <div class="sub-detail-tekst-num">Innlegg {{ i + 1 }}</div>
             <div class="sub-detail-tekst-content">{{ pt.content }}</div>
-            <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">
+            <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-top:0.75rem">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Se publisert innlegg
+              Se dette innlegget
             </a>
           </div>
         </div>
