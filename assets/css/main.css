@@ -241,6 +241,23 @@ h1, h2, h3, p { margin: 0; }
 .add-row .form-input { flex: 1; min-width: 120px; }
 code { font-family: "Courier New", monospace; font-size: 0.85em; background: rgba(43,45,66,0.07); padding: 0.1em 0.35em; border-radius: 2px; font-weight: 600; letter-spacing: 0.04em; }
 
+/* ===== ROLE ACCORDION ===== */
+.role-accordion { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.role-accordion-group { border-bottom: 1px solid var(--border); }
+.role-accordion-group:last-child { border-bottom: none; }
+.role-accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1rem; background: var(--surface); cursor: pointer; user-select: none; transition: background 0.1s; }
+.role-accordion-header:hover { background: #ebebeb; }
+.role-accordion-header span:first-child { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.role-accordion-count { font-size: 0.65rem; color: var(--muted); }
+.role-accordion-body { }
+.user-team-row { display: flex; border-bottom: 1px solid var(--border); }
+.user-team-row:last-child { border-bottom: none; }
+.user-cell { flex: 1; padding: 0.75rem 1rem; border-right: 1px solid var(--border); }
+.user-cell:last-child { border-right: none; }
+.user-cell:only-child { max-width: 320px; }
+.user-cell-name { font-size: 0.88rem; font-weight: 600; color: var(--navy); }
+.user-cell-email { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+
 /* ===== DRAWER ===== */
 .drawer-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(43,45,66,0.4); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .drawer-overlay.open { opacity: 1; pointer-events: all; }
