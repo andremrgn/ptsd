@@ -417,19 +417,19 @@ onUnmounted(() => {
 }
 
 .hjem-cta {
-  display: inline-block;
-  margin-top: 1.25rem;
-  background: var(--coral);
-  color: white;
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 1rem;
+  color: var(--coral);
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  padding: 0.65rem 1.25rem;
-  border-radius: 6px;
   text-decoration: none;
+  border-bottom: 1.5px solid currentColor;
+  padding-bottom: 1px;
   transition: opacity 0.15s;
 }
-.hjem-cta:hover { opacity: 0.85; }
+.hjem-cta:hover { opacity: 0.7; }
 
 .deadline-card {
   display: flex;
