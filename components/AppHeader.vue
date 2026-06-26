@@ -4,10 +4,6 @@
       <img src="/logo-mark-white.png" alt="" class="app-logo-mark" />
       <img src="/logo-wordmark-white.webp" alt="Morgenstern" class="app-logo-word" />
     </NuxtLink>
-    <div v-if="deadlineCountdown !== null" class="header-deadline">
-      <span class="hd-num">{{ deadlineCountdown }}</span>
-      <span class="hd-lbl">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
-    </div>
     <div class="app-header-right">
       <button class="logout-btn" @click="logout">Logg ut</button>
       <NotificationBell />
@@ -31,15 +27,6 @@ const store = useAppStore()
 const drawerStore = useDrawerStore()
 const { logout } = useAuth()
 
-const deadlineCountdown = computed(() => {
-  if (!store.competitionDeadline || store.judgingActive) return null
-  const deadline = new Date(store.competitionDeadline)
-  deadline.setHours(0, 0, 0, 0)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
-  return days >= 0 ? days : null
-})
 const profileImg = computed(() => {
   const u = store.user
   if (!u) return ''
@@ -48,28 +35,3 @@ const profileImg = computed(() => {
   return avatarUrl(u.full_name, 32, u.email)
 })
 </script>
-
-<style scoped>
-.header-deadline {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 2px;
-  padding: 0.2rem 0.6rem;
-}
-
-.hd-num {
-  font-size: 0.8rem;
-  font-weight: 900;
-  color: white;
-  letter-spacing: -0.01em;
-}
-
-.hd-lbl {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.6);
-}
-</style>

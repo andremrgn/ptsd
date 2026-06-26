@@ -35,6 +35,15 @@
       <h1 class="display">Hei, {{ firstName }}!</h1>
       <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
 
+      <!-- Fristkort -->
+      <div v-if="deadlineCountdown !== null" class="deadline-card">
+        <div class="deadline-num">{{ deadlineCountdown }}</div>
+        <div class="deadline-label">
+          <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }}</span>
+          <span class="deadline-sub">igjen til innleveringsfrist</span>
+        </div>
+      </div>
+
       <div style="margin-top:2rem">
         <div v-if="lbLoading" class="loading">Laster oversikt…</div>
         <table v-else class="leaderboard">
@@ -146,6 +155,16 @@ const imgExpanded = ref(false)
 const user = computed(() => store.user)
 const firstName = computed(() => user.value?.full_name.split(' ')[0] || '')
 const roleLabel = computed(() => user.value ? (ROLE_LABELS[user.value.role] || user.value.role) : '–')
+
+const deadlineCountdown = computed(() => {
+  if (!store.competitionDeadline || store.judgingActive) return null
+  const deadline = new Date(store.competitionDeadline)
+  deadline.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
+  return days >= 0 ? days : null
+})
 
 
 const MOTIVATING = [
@@ -335,4 +354,44 @@ function toggleImg(id: string) {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.deadline-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--navy);
+  border-radius: var(--radius);
+}
+
+.deadline-num {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--cream);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.deadline-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.deadline-unit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.deadline-sub {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+}
+</style>
 
