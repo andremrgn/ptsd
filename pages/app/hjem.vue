@@ -364,6 +364,7 @@ onMounted(loadData)
   padding: 1.25rem 1.5rem;
   background: var(--navy);
   border-radius: var(--radius);
+  border-left: 5px solid var(--coral);
 }
 
 .deadline-num {
