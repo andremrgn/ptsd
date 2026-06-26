@@ -106,22 +106,27 @@
             <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th></th></tr></thead>
             <tbody>
               <template v-for="group in usersByRole" :key="group.role">
-                <tr class="role-group-header">
-                  <td colspan="4">{{ group.role }}</td>
-                </tr>
-                <tr v-for="u in group.users" :key="u.email">
-                  <td>{{ u.full_name }}</td>
-                  <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
-                  <td>{{ u.teamName }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      style="padding:0.3rem 0.65rem;font-size:0.65rem"
-                      :disabled="reminderSending === u.email"
-                      @click="sendReminder(u.email)"
-                    >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                <tr class="role-group-header" style="cursor:pointer" @click="toggleRoleGroup(group.role)">
+                  <td colspan="4" style="display:flex;align-items:center;justify-content:space-between">
+                    <span>{{ group.role }}</span>
+                    <span style="font-size:0.7rem;opacity:0.5">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }} {{ group.users.length }}</span>
                   </td>
                 </tr>
+                <template v-if="!collapsedRoles.has(group.role)">
+                  <tr v-for="u in group.users" :key="u.email">
+                    <td>{{ u.full_name }}</td>
+                    <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                    <td>{{ u.teamName }}</td>
+                    <td>
+                      <button
+                        class="btn btn-sm btn-outline"
+                        style="padding:0.3rem 0.65rem;font-size:0.65rem"
+                        :disabled="reminderSending === u.email"
+                        @click="sendReminder(u.email)"
+                      >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                    </td>
+                  </tr>
+                </template>
               </template>
               <tr v-if="!allUsers.length"><td colspan="4" style="text-align:center;color:var(--muted)">Ingen brukere</td></tr>
             </tbody>
@@ -175,6 +180,13 @@ const allUsers = ref<any[]>([])
 const reminderSending = ref<string | null>(null)
 
 const ROLE_ORDER = ['kreatør', 'rådgiver', 'prosjektleder', 'designer', 'film', 'drift']
+const collapsedRoles = ref<Set<string>>(new Set())
+
+function toggleRoleGroup(role: string) {
+  const s = new Set(collapsedRoles.value)
+  s.has(role) ? s.delete(role) : s.add(role)
+  collapsedRoles.value = s
+}
 const usersByRole = computed(() => {
   const groups: { role: string; users: any[] }[] = []
   const seen = new Set<string>()
