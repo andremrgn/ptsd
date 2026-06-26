@@ -392,9 +392,7 @@ onUnmounted(() => {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 3rem;
-  padding-bottom: 2.5rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
+  padding-bottom: 2rem;
 }
 
 .hjem-greeting {
