@@ -127,31 +127,36 @@
       <div class="mb1 mt2">
         <div class="section-title">Brukere</div>
         <div v-if="usersLoading" class="loading">Laster…</div>
-        <div v-else class="role-accordion">
-          <div v-for="group in usersByRole" :key="group.role" class="role-accordion-group">
-            <div class="role-accordion-header" @click="toggleRoleGroup(group.role)">
-              <span>{{ group.role }}</span>
-              <span class="role-accordion-count">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }}&nbsp;{{ group.users.length }}</span>
-            </div>
-            <table v-if="!collapsedRoles.has(group.role)" class="data-table">
-              <tbody>
-                <tr v-for="u in group.users" :key="u.email">
-                  <td>{{ u.full_name }}</td>
-                  <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
-                  <td>{{ u.teamName }}</td>
-                  <td>
-                    <button
-                      class="btn btn-sm btn-outline"
-                      style="padding:0.3rem 0.65rem;font-size:0.65rem"
-                      :disabled="reminderSending === u.email"
-                      @click="sendReminder(u.email)"
-                    >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
-                  </td>
+        <div v-else class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th></th></tr></thead>
+            <tbody>
+              <template v-for="group in usersByRole" :key="group.role">
+                <tr class="role-group-header" style="cursor:pointer" @click="toggleRoleGroup(group.role)">
+                  <td>{{ group.role }}</td>
+                  <td></td>
+                  <td></td>
+                  <td style="text-align:right;font-size:0.65rem;opacity:0.5">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }} {{ group.users.length }}</td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-          <p v-if="!allUsers.length" style="padding:1rem;color:var(--muted);font-size:0.85rem">Ingen brukere</p>
+                <template v-if="!collapsedRoles.has(group.role)">
+                  <tr v-for="u in group.users" :key="u.email">
+                    <td>{{ u.full_name }}</td>
+                    <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                    <td>{{ u.teamName }}</td>
+                    <td>
+                      <button
+                        class="btn btn-sm btn-outline"
+                        style="padding:0.3rem 0.65rem;font-size:0.65rem"
+                        :disabled="reminderSending === u.email"
+                        @click="sendReminder(u.email)"
+                      >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                    </td>
+                  </tr>
+                </template>
+              </template>
+              <tr v-if="!allUsers.length"><td colspan="4" style="text-align:center;color:var(--muted)">Ingen brukere</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
