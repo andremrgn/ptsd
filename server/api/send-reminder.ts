@@ -16,6 +16,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
+  // Pause: 3. juli – 31. juli 2026
+  const now = new Date()
+  const pauseStart = new Date('2026-07-03T00:00:00+02:00')
+  const pauseEnd   = new Date('2026-07-31T23:59:59+02:00')
+  if (now >= pauseStart && now <= pauseEnd) {
+    return { sent: 0, paused: true }
+  }
+
   if (!config.supabaseServiceKey) {
     throw createError({ statusCode: 500, message: 'Service key not configured' })
   }
