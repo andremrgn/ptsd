@@ -49,6 +49,9 @@
         <p class="welcome-subtitle">
           Sjekk innboksen din. Vi har sendt en innloggingslenke til <strong>{{ email }}</strong>.
         </p>
+        <p class="welcome-subtitle" style="margin-top:0.75rem;font-size:0.8rem;opacity:0.7">
+          Viktig: åpne lenken i <strong>samme nettleser</strong> du er i nå — ikke på en annen enhet (f.eks. mobilen).
+        </p>
         <button class="btn-magic-link" style="margin-top:1.5rem" @click="magicLinkSent = false">
           ← Prøv igjen
         </button>
