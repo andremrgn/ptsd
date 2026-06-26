@@ -2,7 +2,7 @@
   <div class="page-section">
     <!-- Submission detail overlay -->
     <div v-if="selectedSub" class="wrap-narrow">
-      <button class="sub-detail-back" @click="selectedSub = null">← Tilbake</button>
+      <button class="sub-detail-back" @click="history.back()">← Tilbake</button>
       <div v-if="subLoading" class="loading">Laster…</div>
       <template v-else-if="subDetail">
         <div class="sub-detail-header">
@@ -324,9 +324,15 @@ async function toggleDislike(item: any) {
   }
 }
 
+function closeSubmission() {
+  selectedSub.value = null
+  subDetail.value = null
+}
+
 async function openSubmission(id: string) {
   selectedSub.value = id
   imgExpanded.value = false
+  history.pushState({ sub: id }, '')
   subLoading.value = true
   subDetail.value = null
   try {
@@ -352,7 +358,18 @@ function toggleImg(id: string) {
   else expandedImages.value.add(id)
 }
 
-onMounted(loadData)
+function onPopState() {
+  if (selectedSub.value) closeSubmission()
+}
+
+onMounted(() => {
+  loadData()
+  window.addEventListener('popstate', onPopState)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('popstate', onPopState)
+})
 </script>
 
 <style scoped>
