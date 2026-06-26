@@ -33,7 +33,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'Morgenstern — Sølvposten',
+      title: 'Sølvposten — Morgenstern',
       charset: 'utf-8',
       meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
       link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
