@@ -24,7 +24,7 @@
           <img class="prod-thumb" :src="s.image_url" alt="" />
           <div class="prod-info">
             <div class="prod-title">{{ s.produksjon }}</div>
-            <div class="prod-meta">{{ s.kunde }} · <a :href="s.link" target="_blank" style="color:var(--coral)">Se innlegg →</a></div>
+            <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
-import { avatarUrl } from '~/utils/avatar'
+import { avatarUrl, safeUrl } from '~/utils/avatar'
 
 definePageMeta({ middleware: 'auth', layout: 'app' })
 

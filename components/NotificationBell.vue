@@ -139,7 +139,7 @@ async function loadItems() {
     ...(dislikes || []).map((d: any) => ({
       key: `d-${d.submission_id}-${d.from_email}`,
       icon: '👎',
-      text: `Noen likte ikke ${subName[d.submission_id] || 'en innlevering'}`,
+      text: `${d.from_email.split('@')[0]} likte ikke ${subName[d.submission_id] || 'en innlevering'}`,
       ago: d.created_at ? timeAgo(d.created_at) : null,
       created_at: d.created_at,
       isUnread: d.created_at > lastCheck,
