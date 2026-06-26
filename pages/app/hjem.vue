@@ -46,13 +46,12 @@
           <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
           <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon →</NuxtLink>
         </div>
-        <div v-if="countdown !== null" class="deadline-card">
-          <div class="deadline-days-row">
-            <span class="deadline-num">{{ countdown.days }}</span>
-            <span class="deadline-unit">{{ countdown.days === 1 ? 'dag' : 'dager' }}</span>
+        <div v-if="deadlineCountdown !== null" class="deadline-card">
+          <span class="deadline-num">{{ deadlineCountdown }}</span>
+          <div class="deadline-label">
+            <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
+            <span class="deadline-sub">til innleveringsfrist</span>
           </div>
-          <span class="deadline-hms">{{ String(countdown.hours).padStart(2,'0') }}:{{ String(countdown.minutes).padStart(2,'0') }}:{{ String(countdown.seconds).padStart(2,'0') }}</span>
-          <span class="deadline-sub">til innleveringsfrist</span>
         </div>
       </div>
 
@@ -172,24 +171,15 @@ const user = computed(() => store.user)
 const firstName = computed(() => user.value?.full_name.split(' ')[0] || '')
 const roleLabel = computed(() => user.value ? (ROLE_LABELS[user.value.role] || user.value.role) : '–')
 
-type Countdown = { days: number; hours: number; minutes: number; seconds: number } | null
-const countdown = ref<Countdown>(null)
-
-function calcCountdown(): Countdown {
+const deadlineCountdown = computed(() => {
   if (!store.competitionDeadline || store.judgingActive) return null
   const deadline = new Date(store.competitionDeadline)
-  deadline.setHours(23, 59, 59, 999)
-  const diff = deadline.getTime() - Date.now()
-  if (diff < 0) return null
-  return {
-    days: Math.floor(diff / 86400000),
-    hours: Math.floor((diff % 86400000) / 3600000),
-    minutes: Math.floor((diff % 3600000) / 60000),
-    seconds: Math.floor((diff % 60000) / 1000),
-  }
-}
-
-let countdownTimer: ReturnType<typeof setInterval> | null = null
+  deadline.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
+  return days >= 0 ? days : null
+})
 
 
 const MOTIVATING = [
@@ -406,13 +396,12 @@ function onPopState() {
 onMounted(() => {
   loadData()
   window.addEventListener('popstate', onPopState)
-  countdown.value = calcCountdown()
-  countdownTimer = setInterval(() => { countdown.value = calcCountdown() }, 1000)
+
 })
 
 onUnmounted(() => {
   window.removeEventListener('popstate', onPopState)
-  if (countdownTimer) clearInterval(countdownTimer)
+
 })
 </script>
 
@@ -448,14 +437,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
-  gap: 0.15rem;
-  white-space: nowrap;
-}
-
-.deadline-days-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
+  gap: 0.25rem;
 }
 
 .deadline-num {
@@ -466,19 +448,18 @@ onUnmounted(() => {
   letter-spacing: -0.04em;
 }
 
+.deadline-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
 .deadline-unit {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--navy);
   letter-spacing: -0.01em;
-}
-
-.deadline-hms {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--navy);
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
 }
 
 .deadline-sub {
