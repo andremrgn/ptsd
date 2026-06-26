@@ -128,25 +128,28 @@
         <div class="section-title">Brukere</div>
         <div v-if="usersLoading" class="loading">Laster…</div>
         <div v-else class="role-accordion">
-          <div v-for="group in usersByRoleAndTeam" :key="group.role" class="role-accordion-group">
+          <div v-for="group in usersByRole" :key="group.role" class="role-accordion-group">
             <div class="role-accordion-header" @click="toggleRoleGroup(group.role)">
               <span>{{ group.role }}</span>
-              <span class="role-accordion-count">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }}&nbsp;{{ group.totalUsers }}</span>
+              <span class="role-accordion-count">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }}&nbsp;{{ group.users.length }}</span>
             </div>
-            <div v-if="!collapsedRoles.has(group.role)" class="role-accordion-body">
-              <div v-for="team in group.teams" :key="team.teamName" class="user-team-row">
-                <div v-for="u in team.users" :key="u.email" class="user-cell">
-                  <div class="user-cell-name">{{ u.full_name }}</div>
-                  <div class="user-cell-email">{{ u.email }}</div>
-                  <button
-                    class="btn btn-sm btn-outline"
-                    style="padding:0.25rem 0.6rem;font-size:0.62rem;margin-top:0.4rem"
-                    :disabled="reminderSending === u.email"
-                    @click="sendReminder(u.email)"
-                  >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
-                </div>
-              </div>
-            </div>
+            <table v-if="!collapsedRoles.has(group.role)" class="data-table">
+              <tbody>
+                <tr v-for="u in group.users" :key="u.email">
+                  <td>{{ u.full_name }}</td>
+                  <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                  <td>{{ u.teamName }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline"
+                      style="padding:0.3rem 0.65rem;font-size:0.65rem"
+                      :disabled="reminderSending === u.email"
+                      @click="sendReminder(u.email)"
+                    >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p v-if="!allUsers.length" style="padding:1rem;color:var(--muted);font-size:0.85rem">Ingen brukere</p>
         </div>
