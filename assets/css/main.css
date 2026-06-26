@@ -112,9 +112,9 @@ h1, h2, h3, p { margin: 0; }
 .lb-team { display: flex; align-items: center; gap: 0.6rem; }
 .lb-avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
 .lb-rank { font-weight: 900; font-size: 1.1rem; color: var(--navy); width: 24px; text-align: center; }
-.lb-rank.gold { color: #d4a017; }
-.lb-rank.silver { color: #888; }
-.lb-rank.bronze { color: #a0522d; }
+.lb-rank.gold { color: var(--navy); }
+.lb-rank.silver { color: var(--navy); }
+.lb-rank.bronze { color: var(--navy); }
 .lb-kudos-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.82rem; margin-left: 0.5rem; white-space: nowrap; }
 .lb-kudos-num { font-size: 0.68rem; font-weight: 800; background: var(--navy); color: var(--cream); border-radius: 20px; padding: 0 6px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
 
