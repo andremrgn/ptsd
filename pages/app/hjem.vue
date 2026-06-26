@@ -477,13 +477,21 @@ onUnmounted(() => {
 @media (max-width: 600px) {
   .hjem-top {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
+    padding-bottom: 1rem;
   }
   .deadline-card {
     align-items: flex-start;
   }
   .deadline-label {
     align-items: flex-start;
+  }
+  .deadline-num {
+    font-size: 2.75rem;
+  }
+  .hjem-cta {
+    font-size: 0.8rem;
+    padding: 0.55rem 1rem;
   }
 }
 </style>

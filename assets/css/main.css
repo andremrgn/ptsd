@@ -342,3 +342,42 @@ code { font-family: "Courier New", monospace; font-size: 0.85em; background: rgb
 hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .mt2 { margin-top: 2rem; }
 .mb1 { margin-bottom: 1rem; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+  /* Layout */
+  .wrap, .wrap-narrow { padding: 1.25rem 1rem 4rem; }
+  .hjem-section { margin-top: 2rem; padding-top: 2rem; }
+
+  /* Header */
+  #app-header { padding: 0 1rem; }
+  .logout-btn { display: none; }
+  .tab-bar { padding: 0 0.5rem; }
+  .tab-btn { padding: 0.85rem 0.75rem; font-size: 0.72rem; }
+
+  /* Admin tables — scroll horisontalt istedenfor å brekke */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .data-table { min-width: 480px; }
+
+  /* Leaderboard */
+  .leaderboard { font-size: 0.82rem; }
+  .leaderboard td, .leaderboard th { padding: 0.65rem 0.5rem; }
+  .lb-avatar { width: 24px; height: 24px; }
+  .lb-kudos-badge { display: none; }
+
+  /* Feed */
+  .feed-card-top { padding: 0.75rem 0.85rem 0.6rem; }
+  .feed-card-footer { padding: 0.5rem 0.85rem; }
+
+  /* Admin stats */
+  .stats-row { gap: 0.4rem; }
+  .stat { padding: 0.75rem 0.5rem; }
+  .stat-num { font-size: 1.7rem; }
+
+  /* Send inn */
+  .team-card { padding: 1rem; gap: 1rem; }
+  .dropzone { padding: 1.5rem 1rem; }
+
+  /* Toast */
+  .toast { bottom: 1rem; right: 1rem; left: 1rem; max-width: none; }
+}
