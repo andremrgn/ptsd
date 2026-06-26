@@ -71,7 +71,7 @@
             <label class="form-label">Postetekster <span style="color:var(--coral)">*</span></label>
             <div v-for="(pt, i) in postetekster" :key="i" class="postetekst-item">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
-                <span style="font-size:0.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6">Tekst {{ i + 1 }}</span>
+                <span style="font-size:0.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6">Innlegg {{ i + 1 }}</span>
                 <button v-if="i > 0" class="postetekst-remove" @click="postetekster.splice(i, 1)">✕</button>
               </div>
               <textarea v-model="pt.content" class="form-input form-textarea" placeholder="Skriv postetekst her…" rows="4" />

@@ -21,7 +21,7 @@
         />
         <div class="sub-detail-tekster">
           <div v-for="(pt, i) in subDetail.postetekster" :key="pt.id" class="sub-detail-tekst">
-            <div class="sub-detail-tekst-num">Tekst {{ i + 1 }}</div>
+            <div class="sub-detail-tekst-num">Innlegg {{ i + 1 }}</div>
             <div class="sub-detail-tekst-content">{{ pt.content }}</div>
             <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-tekst-link">Se innlegg →</a>
           </div>
