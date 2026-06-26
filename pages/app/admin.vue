@@ -89,23 +89,27 @@
         <div v-if="usersLoading" class="loading">Laster…</div>
         <div v-else class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th>Rolle</th><th></th></tr></thead>
+            <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th></th></tr></thead>
             <tbody>
-              <tr v-for="u in allUsers" :key="u.email">
-                <td>{{ u.full_name }}</td>
-                <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
-                <td>{{ u.teamName }}</td>
-                <td style="color:var(--muted);font-size:0.78rem">{{ u.role }}</td>
-                <td>
-                  <button
-                    class="btn btn-sm btn-outline"
-                    style="padding:0.3rem 0.65rem;font-size:0.65rem"
-                    :disabled="reminderSending === u.email"
-                    @click="sendReminder(u.email)"
-                  >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
-                </td>
-              </tr>
-              <tr v-if="!allUsers.length"><td colspan="5" style="text-align:center;color:var(--muted)">Ingen brukere</td></tr>
+              <template v-for="group in usersByRole" :key="group.role">
+                <tr class="role-group-header">
+                  <td colspan="4">{{ group.role }}</td>
+                </tr>
+                <tr v-for="u in group.users" :key="u.email">
+                  <td>{{ u.full_name }}</td>
+                  <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                  <td>{{ u.teamName }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline"
+                      style="padding:0.3rem 0.65rem;font-size:0.65rem"
+                      :disabled="reminderSending === u.email"
+                      @click="sendReminder(u.email)"
+                    >{{ reminderSending === u.email ? '…' : 'Påminnelse' }}</button>
+                  </td>
+                </tr>
+              </template>
+              <tr v-if="!allUsers.length"><td colspan="4" style="text-align:center;color:var(--muted)">Ingen brukere</td></tr>
             </tbody>
           </table>
         </div>
@@ -154,6 +158,24 @@ const subsLoading = ref(true)
 const usersLoading = ref(true)
 const allUsers = ref<any[]>([])
 const reminderSending = ref<string | null>(null)
+
+const ROLE_ORDER = ['kreatør', 'rådgiver', 'prosjektleder', 'designer', 'film', 'drift']
+const usersByRole = computed(() => {
+  const groups: { role: string; users: any[] }[] = []
+  const seen = new Set<string>()
+  const sorted = [...allUsers.value].sort((a, b) => {
+    const ai = ROLE_ORDER.indexOf(a.role)
+    const bi = ROLE_ORDER.indexOf(b.role)
+    const roleSort = (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+    if (roleSort !== 0) return roleSort
+    return a.full_name.localeCompare(b.full_name, 'no')
+  })
+  for (const u of sorted) {
+    if (!seen.has(u.role)) { seen.add(u.role); groups.push({ role: u.role, users: [] }) }
+    groups[groups.length - 1].users.push(u)
+  }
+  return groups
+})
 const newJuryName = ref('')
 const newJuryEmail = ref('')
 const newJuryCode = ref('')
