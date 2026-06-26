@@ -416,7 +416,13 @@ onUnmounted(() => {
 
 .hjem-greeting {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
+
+.hjem-greeting > * { margin: 0; }
 
 .hjem-cta {
   display: inline-block;
