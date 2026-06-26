@@ -67,6 +67,40 @@ export const useAppStore = defineStore('app', () => {
     if (data) team.value = data
   }
 
+  const HJEM_CACHE_KEY = 'sp_hjem_raw'
+  const HJEM_TTL = 5 * 60 * 1000
+
+  type HjemRaw = {
+    teams: any[]
+    subs: any[]
+    allSubs: any[]
+    pts: any[]
+    allKudos: any[]
+    allDislikes: any[]
+    fetchedAt: number
+  }
+
+  function loadHjemFromStorage(): HjemRaw | null {
+    if (import.meta.server) return null
+    try {
+      const raw = localStorage.getItem(HJEM_CACHE_KEY)
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  }
+
+  const hjemRaw = ref<HjemRaw | null>(loadHjemFromStorage())
+
+  function hjemCacheFresh() {
+    return hjemRaw.value !== null && Date.now() - hjemRaw.value.fetchedAt < HJEM_TTL
+  }
+
+  function setHjemRaw(data: HjemRaw) {
+    hjemRaw.value = data
+    if (import.meta.client) {
+      try { localStorage.setItem(HJEM_CACHE_KEY, JSON.stringify(data)) } catch {}
+    }
+  }
+
   return {
     user,
     team,
@@ -74,6 +108,9 @@ export const useAppStore = defineStore('app', () => {
     resultsVisible,
     competitionDeadline,
     isParticipant,
+    hjemRaw,
+    hjemCacheFresh,
+    setHjemRaw,
     setUser,
     clearUser,
     loadProfile,

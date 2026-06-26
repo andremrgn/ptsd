@@ -281,9 +281,9 @@ async function fetchFresh() {
 }
 
 async function loadData() {
-  if (store.hjemCacheFresh()) {
-    processRaw(store.hjemRaw!)
-    fetchFresh()
+  if (store.hjemRaw) {
+    processRaw(store.hjemRaw)
+    if (!store.hjemCacheFresh()) fetchFresh()
     return
   }
   lbLoading.value = true
