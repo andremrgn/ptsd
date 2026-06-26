@@ -45,10 +45,11 @@
           <h1 class="display">Hei, {{ firstName }}!</h1>
           <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
         </div>
-        <div v-if="deadlineCountdown !== null" class="deadline-card">
-          <span class="deadline-num">{{ deadlineCountdown }}</span>
+        <div v-if="countdown !== null" class="deadline-card">
+          <span class="deadline-num">{{ countdown.days }}</span>
           <div class="deadline-label">
-            <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
+            <span class="deadline-unit">{{ countdown.days === 1 ? 'dag' : 'dager' }} igjen</span>
+            <span class="deadline-hms">{{ String(countdown.hours).padStart(2,'0') }}:{{ String(countdown.minutes).padStart(2,'0') }}:{{ String(countdown.seconds).padStart(2,'0') }}</span>
             <span class="deadline-sub">til innleveringsfrist</span>
           </div>
           <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn →</NuxtLink>
@@ -171,15 +172,24 @@ const user = computed(() => store.user)
 const firstName = computed(() => user.value?.full_name.split(' ')[0] || '')
 const roleLabel = computed(() => user.value ? (ROLE_LABELS[user.value.role] || user.value.role) : '–')
 
-const deadlineCountdown = computed(() => {
+type Countdown = { days: number; hours: number; minutes: number; seconds: number } | null
+const countdown = ref<Countdown>(null)
+
+function calcCountdown(): Countdown {
   if (!store.competitionDeadline || store.judgingActive) return null
   const deadline = new Date(store.competitionDeadline)
-  deadline.setHours(0, 0, 0, 0)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
-  return days >= 0 ? days : null
-})
+  deadline.setHours(23, 59, 59, 999)
+  const diff = deadline.getTime() - Date.now()
+  if (diff < 0) return null
+  return {
+    days: Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
+    minutes: Math.floor((diff % 3600000) / 60000),
+    seconds: Math.floor((diff % 60000) / 1000),
+  }
+}
+
+let countdownTimer: ReturnType<typeof setInterval> | null = null
 
 
 const MOTIVATING = [
@@ -396,10 +406,13 @@ function onPopState() {
 onMounted(() => {
   loadData()
   window.addEventListener('popstate', onPopState)
+  countdown.value = calcCountdown()
+  countdownTimer = setInterval(() => { countdown.value = calcCountdown() }, 1000)
 })
 
 onUnmounted(() => {
   window.removeEventListener('popstate', onPopState)
+  if (countdownTimer) clearInterval(countdownTimer)
 })
 </script>
 
@@ -459,6 +472,14 @@ onUnmounted(() => {
   font-weight: 700;
   color: var(--navy);
   letter-spacing: -0.01em;
+}
+
+.deadline-hms {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
 }
 
 .deadline-sub {
