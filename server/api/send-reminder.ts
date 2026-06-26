@@ -22,11 +22,15 @@ export default defineEventHandler(async (event) => {
   const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
   const resend = new Resend(config.resendApiKey)
 
-  // Sjekk om auto-mail er pauset
-  const { data: pauseSetting } = await sb.from('settings').select('value').eq('key', 'mail_paused').single()
-  if (pauseSetting?.value === 'true') {
-    return { sent: 0, paused: true }
-  }
+  // Sjekk om auto-mail er pauset (manuelt eller kalenderblokk)
+  const [{ data: pauseSetting }, { data: blocksSetting }] = await Promise.all([
+    sb.from('settings').select('value').eq('key', 'mail_paused').single(),
+    sb.from('settings').select('value').eq('key', 'mail_blocks').single(),
+  ])
+  if (pauseSetting?.value === 'true') return { sent: 0, paused: true }
+  const today = new Date().toISOString().slice(0, 10)
+  const blocks: { start: string; end: string }[] = JSON.parse(blocksSetting?.value || '[]')
+  if (blocks.some(b => today >= b.start && today <= b.end)) return { sent: 0, paused: true }
 
   // Hent alle team
   const { data: teams } = await sb.from('teams').select('id, name')

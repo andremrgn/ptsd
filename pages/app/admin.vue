@@ -60,12 +60,38 @@
         <div class="section-title">Mail</div>
         <div class="status-bar">
           <div class="status-ind">
-            <div class="dot" :style="{ background: mailPaused ? '#aaa' : '#3D9E6A' }"></div>
-            <span>{{ mailPaused ? 'Auto-mail er pauset' : 'Auto-mail er aktiv' }}</span>
+            <div class="dot" :style="{ background: mailBlockedNow || mailPaused ? '#aaa' : '#3D9E6A' }"></div>
+            <span v-if="mailBlockedNow">Blokkert av kalender ({{ mailBlockedNow.label || mailBlockedNow.start + ' – ' + mailBlockedNow.end }})</span>
+            <span v-else-if="mailPaused">Manuelt pauset</span>
+            <span v-else>Auto-mail er aktiv</span>
           </div>
           <button class="btn btn-sm" :class="{ 'btn-danger': !mailPaused }" @click="toggleMailPause">
-            {{ mailPaused ? 'Gjenoppta' : 'Pause' }}
+            {{ mailPaused ? 'Gjenoppta' : 'Pause manuelt' }}
           </button>
+        </div>
+
+        <div style="margin-top:1rem">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.5;margin-bottom:0.6rem">Kalenderblokker</div>
+          <div class="add-row" style="margin-bottom:0.75rem">
+            <input v-model="newBlock.label" type="text" class="form-input" placeholder="Merkelapp (valgfri)" />
+            <input v-model="newBlock.start" type="date" class="form-input" style="max-width:160px" />
+            <input v-model="newBlock.end" type="date" class="form-input" style="max-width:160px" />
+            <button class="btn btn-sm" @click="addMailBlock">+ Legg til</button>
+          </div>
+          <div v-if="mailBlocks.length" class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Merkelapp</th><th>Fra</th><th>Til</th><th></th></tr></thead>
+              <tbody>
+                <tr v-for="(b, i) in mailBlocks" :key="i" :style="{ background: isBlockActive(b) ? 'rgba(237,85,92,0.06)' : '' }">
+                  <td>{{ b.label || '–' }}</td>
+                  <td style="font-size:0.78rem">{{ b.start }}</td>
+                  <td style="font-size:0.78rem">{{ b.end }}</td>
+                  <td><button class="btn btn-sm btn-danger" style="padding:0.3rem 0.65rem;font-size:0.65rem" @click="removeMailBlock(i)">Fjern</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p v-else style="font-size:0.82rem;color:var(--muted)">Ingen blokker lagt til.</p>
         </div>
       </div>
 
@@ -171,6 +197,16 @@ const { toast } = useToast()
 
 const stats = reactive({ subs: 0, jury: 0, scores: 0 })
 const mailPaused = ref(false)
+type MailBlock = { start: string; end: string; label: string }
+const mailBlocks = ref<MailBlock[]>([])
+const newBlock = reactive({ start: '', end: '', label: '' })
+
+function isBlockActive(b: MailBlock) {
+  const today = new Date().toISOString().slice(0, 10)
+  return today >= b.start && today <= b.end
+}
+
+const mailBlockedNow = computed(() => mailBlocks.value.find(isBlockActive) ?? null)
 const juryCodes = ref<any[]>([])
 const allSubs = ref<any[]>([])
 const juryLoading = ref(true)
@@ -239,16 +275,19 @@ async function loadAdminData() {
     { count: jc },
     { count: pc },
     { data: mailPauseSetting },
+    { data: mailBlocksSetting },
   ] = await Promise.all([
     sb.from('submissions').select('*', { count: 'exact', head: true }),
     sb.from('jury_codes').select('*', { count: 'exact', head: true }),
     sb.from('scores').select('*', { count: 'exact', head: true }),
     sb.from('settings').select('value').eq('key', 'mail_paused').single(),
+    sb.from('settings').select('value').eq('key', 'mail_blocks').single(),
   ])
   stats.subs = sc ?? 0
   stats.jury = jc ?? 0
   stats.scores = pc ?? 0
   mailPaused.value = mailPauseSetting?.value === 'true'
+  try { mailBlocks.value = JSON.parse((mailBlocksSetting as any)?.value || '[]') } catch { mailBlocks.value = [] }
   await Promise.all([loadJuryTable(), loadSubTable(), loadUsersTable()])
 }
 
@@ -258,6 +297,26 @@ async function toggleMailPause() {
   if (error) { toast('Feil: ' + error.message, true); return }
   mailPaused.value = nv
   toast(nv ? 'Auto-mail pauset' : 'Auto-mail gjenopptatt')
+}
+
+async function saveMailBlocks() {
+  const { error } = await sb.from('settings').upsert({ key: 'mail_blocks', value: JSON.stringify(mailBlocks.value) }, { onConflict: 'key' })
+  if (error) toast('Feil: ' + error.message, true)
+}
+
+async function addMailBlock() {
+  if (!newBlock.start || !newBlock.end) { toast('Fyll inn start- og sluttdato', true); return }
+  if (newBlock.end < newBlock.start) { toast('Sluttdato må være etter startdato', true); return }
+  mailBlocks.value = [...mailBlocks.value, { start: newBlock.start, end: newBlock.end, label: newBlock.label }]
+  newBlock.start = ''; newBlock.end = ''; newBlock.label = ''
+  await saveMailBlocks()
+  toast('Blokk lagt til')
+}
+
+async function removeMailBlock(i: number) {
+  mailBlocks.value = mailBlocks.value.filter((_, idx) => idx !== i)
+  await saveMailBlocks()
+  toast('Blokk fjernet')
 }
 
 async function loadJuryTable() {
