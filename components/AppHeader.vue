@@ -28,13 +28,11 @@
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
 import { useDrawerStore } from '~/stores/drawer'
-import { avatarUrl, ROLE_LABELS } from '~/utils/avatar'
+import { avatarUrl } from '~/utils/avatar'
 
 const store = useAppStore()
 const drawerStore = useDrawerStore()
 const { logout } = useAuth()
-
-const roleLabel = computed(() => store.user ? (ROLE_LABELS[store.user.role] || store.user.role) : '–')
 
 const deadlineCountdown = computed(() => {
   if (!store.competitionDeadline || store.judgingActive) return null

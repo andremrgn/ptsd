@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, message: 'Ugyldig jurykode' })
   }
 
-  if (juryMember.email && juryMember.email.toLowerCase() !== caller.email?.toLowerCase()) {
+  if (!juryMember.email || juryMember.email.toLowerCase() !== caller.email?.toLowerCase()) {
     throw createError({ statusCode: 403, message: 'Denne jurykoden tilhører ikke din konto' })
   }
 

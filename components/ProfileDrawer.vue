@@ -62,12 +62,10 @@
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
 import { useDrawerStore } from '~/stores/drawer'
-import { useAdminModalStore } from '~/stores/adminModal'
 import { avatarUrl, ROLE_LABELS } from '~/utils/avatar'
 
 const store = useAppStore()
 const drawerStore = useDrawerStore()
-const adminModal = useAdminModalStore()
 const sb = useSupabase()
 const { toast } = useToast()
 const router = useRouter()
@@ -153,11 +151,6 @@ async function handleTeamPhoto(e: Event) {
 
 function openAdmin() {
   drawerStore.open = false
-  if (store.adminVerified) {
-    router.push('/app/admin')
-  } else {
-    adminModal.open = true
-    adminModal.redirectAfter = '/app/admin'
-  }
+  router.push('/app/admin')
 }
 </script>

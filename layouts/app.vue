@@ -6,7 +6,6 @@
       <slot />
     </main>
     <ProfileDrawer />
-    <AdminLoginModal />
   </div>
 </template>
 
@@ -15,9 +14,7 @@ import { useAppStore } from '~/stores/app'
 
 const store = useAppStore()
 onMounted(async () => {
-  if (!store.user) {
-    store.loadUserFromStorage()
-  }
+  // store.user fylles av auth-middleware før layouten mountes
   if (store.user) {
     await Promise.all([store.loadSettings(), store.loadTeam()])
   }

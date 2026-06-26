@@ -39,7 +39,8 @@ watch(session, async (s) => {
     await store.loadTeam()
     handled = true
     if (fallbackTimer) clearTimeout(fallbackTimer)
-    const dest = s.user.user_metadata?.password_set ? '/app/hjem' : '/set-password'
+    // Bruk DB-verdien (kilde til sannhet), ikke JWT-metadata som henger etter updateUser
+    const dest = store.user?.password_set ? '/app/hjem' : '/set-password'
     router.push(dest)
   } catch {
     statusMessage.value = 'Noe gikk galt. Prøv igjen.'

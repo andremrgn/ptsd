@@ -26,7 +26,6 @@ export const useAppStore = defineStore('app', () => {
   const team = ref<AppTeam | null>(null)
   const judgingActive = ref(false)
   const resultsVisible = ref(false)
-  const adminVerified = ref(false)
   const competitionDeadline = ref<string | null>(null)
 
   const isParticipant = computed(() =>
@@ -40,7 +39,6 @@ export const useAppStore = defineStore('app', () => {
   function clearUser() {
     user.value = null
     team.value = null
-    adminVerified.value = false
   }
 
   async function loadProfile(email: string): Promise<string | null> {
@@ -74,7 +72,6 @@ export const useAppStore = defineStore('app', () => {
     team,
     judgingActive,
     resultsVisible,
-    adminVerified,
     competitionDeadline,
     isParticipant,
     setUser,

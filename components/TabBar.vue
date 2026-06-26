@@ -39,19 +39,12 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
-import { useAdminModalStore } from '~/stores/adminModal'
 
 const store = useAppStore()
-const adminModal = useAdminModalStore()
 const route = useRoute()
 const router = useRouter()
 
 function handleAdminClick() {
-  if (store.adminVerified) {
-    router.push('/app/admin')
-  } else {
-    adminModal.open = true
-    adminModal.redirectAfter = '/app/admin'
-  }
+  router.push('/app/admin')
 }
 </script>

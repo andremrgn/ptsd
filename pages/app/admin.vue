@@ -261,8 +261,9 @@ function randomCode() {
 
 async function addJuryCode() {
   if (!newJuryName.value.trim()) { toast('Legg inn et navn', true); return }
+  const email = newJuryEmail.value.trim().toLowerCase()
+  if (!email || !email.includes('@')) { toast('Legg inn en gyldig e-post', true); return }
   const code = (newJuryCode.value.trim().toUpperCase()) || randomCode()
-  const email = newJuryEmail.value.trim().toLowerCase() || null
   const { error } = await sb.from('jury_codes').insert({ jury_name: newJuryName.value.trim(), code, email })
   if (error) { toast('Feil: ' + error.message, true); return }
   newJuryName.value = ''
