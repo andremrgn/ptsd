@@ -193,20 +193,9 @@ const BOASTING = [
 
 const quote = ref('')
 
-async function loadData() {
-  lbLoading.value = true
-  feedLoading.value = true
-  const [{ data: teams }, { data: subs }, { data: allSubs }, { data: pts }, { data: allKudos }, { data: allDislikes }] =
-    await Promise.all([
-      sb.from('teams').select('*').order('name'),
-      sb.from('submissions').select('*').order('submitted_at', { ascending: false }).limit(15),
-      sb.from('submissions').select('id,team_id'),
-      sb.from('postetekster').select('id,submission_id'),
-      sb.from('kudos').select('submission_id,from_email'),
-      sb.from('dislikes').select('submission_id,from_email'),
-    ])
-
-  if (!teams) { lbLoading.value = false; feedLoading.value = false; return }
+function processRaw(raw: NonNullable<typeof store.hjemRaw.value>) {
+  const { teams, subs, allSubs, pts, allKudos, allDislikes } = raw
+  if (!teams?.length) return
 
   const teamsById: Record<string, any> = {}
   teams.forEach((t: any) => { teamsById[t.id] = t })
@@ -272,6 +261,33 @@ async function loadData() {
     }
   })
   feedLoading.value = false
+}
+
+async function fetchFresh() {
+  const [{ data: teams }, { data: subs }, { data: allSubs }, { data: pts }, { data: allKudos }, { data: allDislikes }] =
+    await Promise.all([
+      sb.from('teams').select('*').order('name'),
+      sb.from('submissions').select('*').order('submitted_at', { ascending: false }).limit(15),
+      sb.from('submissions').select('id,team_id'),
+      sb.from('postetekster').select('id,submission_id'),
+      sb.from('kudos').select('submission_id,from_email').limit(500),
+      sb.from('dislikes').select('submission_id,from_email').limit(500),
+    ])
+  if (!teams) return
+  const raw = { teams, subs: subs || [], allSubs: allSubs || [], pts: pts || [], allKudos: allKudos || [], allDislikes: allDislikes || [], fetchedAt: Date.now() }
+  store.setHjemRaw(raw)
+  processRaw(raw)
+}
+
+async function loadData() {
+  if (store.hjemCacheFresh()) {
+    processRaw(store.hjemRaw!)
+    fetchFresh()
+    return
+  }
+  lbLoading.value = true
+  feedLoading.value = true
+  await fetchFresh()
 }
 
 async function toggleKudos(item: any) {
