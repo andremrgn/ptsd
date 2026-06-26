@@ -52,6 +52,24 @@
             </div>
           </div>
 
+          <div class="drawer-section">
+            <div class="drawer-section-title">Endre passord</div>
+            <template v-if="!showPwForm">
+              <button class="drawer-save-btn" style="background:transparent;border:1.5px solid var(--border);color:var(--navy)" @click="showPwForm = true">Endre passord →</button>
+            </template>
+            <template v-else>
+              <label class="drawer-edit-label">Nytt passord</label>
+              <input v-model="newPw" class="drawer-edit-input" type="password" placeholder="Minst 8 tegn" autocomplete="new-password" />
+              <label class="drawer-edit-label" style="margin-top:0.5rem">Bekreft passord</label>
+              <input v-model="confirmPw" class="drawer-edit-input" type="password" placeholder="Gjenta passordet" autocomplete="new-password" />
+              <p v-if="pwError" style="color:var(--coral);font-size:0.8rem;margin-bottom:0.5rem">{{ pwError }}</p>
+              <div style="display:flex;gap:0.5rem;margin-top:0.25rem">
+                <button class="drawer-save-btn" style="flex:1" :disabled="pwLoading" @click="changePassword">{{ pwLoading ? 'Lagrer…' : 'Lagre passord' }}</button>
+                <button class="drawer-save-btn" style="flex:0 0 auto;background:transparent;border:1.5px solid var(--border);color:var(--muted)" @click="cancelPw">Avbryt</button>
+              </div>
+            </template>
+          </div>
+
           <button v-if="user.is_admin" class="drawer-admin-btn" @click="openAdmin">Admin-panel →</button>
         </template>
       </div>
@@ -75,6 +93,11 @@ const profileInput = ref<HTMLInputElement>()
 const teamInput = ref<HTMLInputElement>()
 const nickname = ref('')
 const quote = ref('')
+const showPwForm = ref(false)
+const newPw = ref('')
+const confirmPw = ref('')
+const pwError = ref('')
+const pwLoading = ref(false)
 
 watch(user, (u) => {
   if (u) {
@@ -147,6 +170,32 @@ async function handleTeamPhoto(e: Event) {
   } catch (err: any) {
     toast('Feil: ' + err.message, true)
   }
+}
+
+function cancelPw() {
+  showPwForm.value = false
+  newPw.value = ''
+  confirmPw.value = ''
+  pwError.value = ''
+}
+
+async function changePassword() {
+  pwError.value = ''
+  if (newPw.value.length < 8) { pwError.value = 'Passordet må være minst 8 tegn.'; return }
+  if (newPw.value !== confirmPw.value) { pwError.value = 'Passordene er ikke like.'; return }
+  pwLoading.value = true
+  const { error } = await sb.auth.updateUser({ password: newPw.value })
+  pwLoading.value = false
+  if (error) {
+    if (error.message.toLowerCase().includes('different from the old password')) {
+      pwError.value = 'Det nye passordet må være forskjellig fra det gamle.'
+    } else {
+      pwError.value = 'Noe gikk galt. Prøv igjen.'
+    }
+    return
+  }
+  cancelPw()
+  toast('Passord endret ✓')
 }
 
 function openAdmin() {
