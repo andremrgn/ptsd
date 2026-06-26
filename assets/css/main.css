@@ -119,24 +119,24 @@ h1, h2, h3, p { margin: 0; }
 .prod-meta { font-size: 0.8rem; color: #888; }
 
 /* ===== LEADERBOARD ===== */
-.leaderboard { width: 100%; border-collapse: collapse; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.leaderboard th { background: white; color: var(--muted); font-size: 0.64rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 0.65rem 1rem; text-align: left; border-bottom: 2px solid var(--navy); }
-.leaderboard td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; vertical-align: middle; }
+.leaderboard { width: 100%; border-collapse: collapse; }
+.leaderboard th { background: transparent; color: var(--muted); font-size: 0.64rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+.leaderboard td { padding: 0.8rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; vertical-align: middle; }
 .leaderboard tr:last-child td { border-bottom: none; }
 .leaderboard tr.my-team td { background: #fffaf7; font-weight: 700; }
-.leaderboard tr.my-team td:first-child { border-left: 3px solid var(--coral); }
+.leaderboard tr.my-team td:first-child { border-left: 3px solid var(--coral); padding-left: calc(0.75rem - 3px); }
 .lb-team { display: flex; align-items: center; gap: 0.6rem; }
 .lb-avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; object-fit: cover; }
 .lb-rank { font-weight: 900; font-size: 1.1rem; color: var(--muted); width: 24px; text-align: center; }
 .lb-rank.gold { color: var(--coral); }
-.lb-rank.silver { color: var(--navy); }
-.lb-rank.bronze { color: var(--navy); }
+.lb-rank.silver { color: var(--muted); }
+.lb-rank.bronze { color: var(--muted); }
 .lb-kudos-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.82rem; margin-left: 0.5rem; white-space: nowrap; }
-.lb-kudos-num { font-size: 0.68rem; font-weight: 800; background: var(--navy); color: var(--cream); border-radius: 20px; padding: 0 6px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
+.lb-kudos-num { font-size: 0.68rem; font-weight: 800; background: var(--border); color: var(--navy); border-radius: 20px; padding: 0 6px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
 
 /* ===== ACTIVITY FEED ===== */
 .feed-section { margin-top: 3rem; }
-.feed-heading { font-weight: 900; font-size: 1rem; letter-spacing: -0.01em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--navy); color: var(--navy); }
+.feed-heading { font-weight: 900; font-size: 1rem; letter-spacing: -0.01em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem; color: var(--navy); }
 .feed-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; transition: box-shadow 0.15s; }
 .feed-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
 .feed-card-top { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.1rem 0.75rem; cursor: pointer; }

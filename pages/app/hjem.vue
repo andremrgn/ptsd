@@ -40,10 +40,10 @@
 
       <!-- Fristkort -->
       <div v-if="deadlineCountdown !== null" class="deadline-card">
-        <div class="deadline-num">{{ deadlineCountdown }}</div>
+        <span class="deadline-num">{{ deadlineCountdown }}</span>
         <div class="deadline-label">
-          <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }}</span>
-          <span class="deadline-sub">igjen til innleveringsfrist</span>
+          <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
+          <span class="deadline-sub">til innleveringsfrist</span>
         </div>
       </div>
 
@@ -378,41 +378,39 @@ onUnmounted(() => {
 <style scoped>
 .deadline-card {
   display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  align-items: baseline;
+  gap: 1rem;
   margin-top: 2rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--navy);
-  border-radius: var(--radius);
-  border-left: 5px solid var(--coral);
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .deadline-num {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
-  color: var(--cream);
+  color: var(--coral);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 .deadline-label {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.15rem;
 }
 
 .deadline-unit {
   font-size: 1rem;
   font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: var(--navy);
+  letter-spacing: -0.01em;
 }
 
 .deadline-sub {
   font-size: 0.8rem;
   font-weight: 400;
-  color: rgba(255,255,255,0.5);
+  color: var(--muted);
 }
 </style>
 
