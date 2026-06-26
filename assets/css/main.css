@@ -261,6 +261,8 @@ code { font-family: "Courier New", monospace; font-size: 0.85em; background: rgb
 .drawer-edit-input:focus { border-color: var(--navy); }
 .drawer-save-btn { width: 100%; margin-top: 0.85rem; font-family: "Sohne", sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.6rem; border: none; background: var(--navy); color: var(--cream); cursor: pointer; border-radius: var(--radius); transition: opacity 0.15s; }
 .drawer-save-btn:hover { opacity: 0.85; }
+.drawer-link-btn { background: none; border: none; padding: 0.55rem 0 0; font-size: 0.78rem; font-weight: 500; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; display: block; transition: color 0.15s; }
+.drawer-link-btn:hover { color: var(--navy); }
 .drawer-admin-btn { width: 100%; margin-top: 1rem; font-family: "Sohne", sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.65rem; border: 1.5px solid var(--coral); background: transparent; color: var(--coral); cursor: pointer; border-radius: var(--radius); transition: all 0.15s; }
 .drawer-admin-btn:hover { background: var(--coral); color: var(--white); }
 .drawer-team-photo-row { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; }
