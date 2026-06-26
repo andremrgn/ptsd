@@ -431,7 +431,7 @@ onUnmounted(() => {
 
 .hjem-cta {
   display: inline-block;
-  margin-top: 1.25rem;
+  margin-top: 0.6rem;
   background: var(--coral);
   color: white;
   font-size: 0.85rem;
