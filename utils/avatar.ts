@@ -4,7 +4,7 @@ export const AVATAR_COLORS = [
 ]
 
 export const ROLE_LABELS: Record<string, string> = {
-  kreatør: 'Kreativt team',
+  kreatør: 'Kreatør',
   rådgiver: 'Rådgiver',
   prosjektleder: 'Prosjektleder',
   designer: 'Designer',
