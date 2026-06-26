@@ -39,16 +39,18 @@
 
     <!-- Main home view -->
     <div v-else class="wrap-narrow">
-      <p class="eyebrow">{{ roleLabel }}</p>
-      <h1 class="display">Hei, {{ firstName }}!</h1>
-      <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
-
-      <!-- Fristkort -->
-      <div v-if="deadlineCountdown !== null" class="deadline-card">
-        <span class="deadline-num">{{ deadlineCountdown }}</span>
-        <div class="deadline-label">
-          <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
-          <span class="deadline-sub">til innleveringsfrist</span>
+      <div class="hjem-top">
+        <div class="hjem-greeting">
+          <p class="eyebrow">{{ roleLabel }}</p>
+          <h1 class="display">Hei, {{ firstName }}!</h1>
+          <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
+        </div>
+        <div v-if="deadlineCountdown !== null" class="deadline-card">
+          <span class="deadline-num">{{ deadlineCountdown }}</span>
+          <div class="deadline-label">
+            <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
+            <span class="deadline-sub">til innleveringsfrist</span>
+          </div>
         </div>
       </div>
 
@@ -381,18 +383,30 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.hjem-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.hjem-greeting {
+  min-width: 0;
+}
+
 .deadline-card {
   display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 0.25rem;
 }
 
 .deadline-num {
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 900;
   color: var(--coral);
   line-height: 1;
@@ -402,20 +416,34 @@ onUnmounted(() => {
 .deadline-label {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  align-items: flex-end;
+  gap: 0.1rem;
 }
 
 .deadline-unit {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--navy);
   letter-spacing: -0.01em;
 }
 
 .deadline-sub {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 400;
   color: var(--muted);
+}
+
+@media (max-width: 600px) {
+  .hjem-top {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .deadline-card {
+    align-items: flex-start;
+  }
+  .deadline-label {
+    align-items: flex-start;
+  }
 }
 </style>
 
