@@ -55,6 +55,20 @@
         </div>
       </div>
 
+      <!-- Mail -->
+      <div class="mb1 mt2">
+        <div class="section-title">Mail</div>
+        <div class="status-bar">
+          <div class="status-ind">
+            <div class="dot" :style="{ background: mailPaused ? '#aaa' : '#3D9E6A' }"></div>
+            <span>{{ mailPaused ? 'Auto-mail er pauset' : 'Auto-mail er aktiv' }}</span>
+          </div>
+          <button class="btn btn-sm" :class="{ 'btn-danger': !mailPaused }" @click="toggleMailPause">
+            {{ mailPaused ? 'Gjenoppta' : 'Pause' }}
+          </button>
+        </div>
+      </div>
+
       <!-- Jury members -->
       <div class="mb1 mt2">
         <div class="section-title">Jurymedlemmer</div>
@@ -151,6 +165,7 @@ const sb = useSupabase()
 const { toast } = useToast()
 
 const stats = reactive({ subs: 0, jury: 0, scores: 0 })
+const mailPaused = ref(false)
 const juryCodes = ref<any[]>([])
 const allSubs = ref<any[]>([])
 const juryLoading = ref(true)
@@ -211,15 +226,26 @@ async function loadAdminData() {
     { count: sc },
     { count: jc },
     { count: pc },
+    { data: mailPauseSetting },
   ] = await Promise.all([
     sb.from('submissions').select('*', { count: 'exact', head: true }),
     sb.from('jury_codes').select('*', { count: 'exact', head: true }),
     sb.from('scores').select('*', { count: 'exact', head: true }),
+    sb.from('settings').select('value').eq('key', 'mail_paused').single(),
   ])
   stats.subs = sc ?? 0
   stats.jury = jc ?? 0
   stats.scores = pc ?? 0
+  mailPaused.value = mailPauseSetting?.value === 'true'
   await Promise.all([loadJuryTable(), loadSubTable(), loadUsersTable()])
+}
+
+async function toggleMailPause() {
+  const nv = !mailPaused.value
+  const { error } = await sb.from('settings').upsert({ key: 'mail_paused', value: nv ? 'true' : 'false' }, { onConflict: 'key' })
+  if (error) { toast('Feil: ' + error.message, true); return }
+  mailPaused.value = nv
+  toast(nv ? 'Auto-mail pauset' : 'Auto-mail gjenopptatt')
 }
 
 async function loadJuryTable() {

@@ -16,19 +16,17 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
-  // Pause: 3. juli – 31. juli 2026
-  const now = new Date()
-  const pauseStart = new Date('2026-07-03T00:00:00+02:00')
-  const pauseEnd   = new Date('2026-07-31T23:59:59+02:00')
-  if (now >= pauseStart && now <= pauseEnd) {
-    return { sent: 0, paused: true }
-  }
-
   if (!config.supabaseServiceKey) {
     throw createError({ statusCode: 500, message: 'Service key not configured' })
   }
   const sb = createClient(config.public.supabase.url, config.supabaseServiceKey)
   const resend = new Resend(config.resendApiKey)
+
+  // Sjekk om auto-mail er pauset
+  const { data: pauseSetting } = await sb.from('settings').select('value').eq('key', 'mail_paused').single()
+  if (pauseSetting?.value === 'true') {
+    return { sent: 0, paused: true }
+  }
 
   // Hent alle team
   const { data: teams } = await sb.from('teams').select('id, name')
