@@ -47,12 +47,12 @@
           <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon →</NuxtLink>
         </div>
         <div v-if="countdown !== null" class="deadline-card">
-          <span class="deadline-num">{{ countdown.days }}</span>
-          <div class="deadline-label">
-            <span class="deadline-unit">{{ countdown.days === 1 ? 'dag' : 'dager' }} igjen</span>
-            <span class="deadline-hms">{{ String(countdown.hours).padStart(2,'0') }}:{{ String(countdown.minutes).padStart(2,'0') }}:{{ String(countdown.seconds).padStart(2,'0') }}</span>
-            <span class="deadline-sub">til innleveringsfrist</span>
+          <div class="deadline-days-row">
+            <span class="deadline-num">{{ countdown.days }}</span>
+            <span class="deadline-unit">{{ countdown.days === 1 ? 'dag' : 'dager' }}</span>
           </div>
+          <span class="deadline-hms">{{ String(countdown.hours).padStart(2,'0') }}:{{ String(countdown.minutes).padStart(2,'0') }}:{{ String(countdown.seconds).padStart(2,'0') }}</span>
+          <span class="deadline-sub">til innleveringsfrist</span>
         </div>
       </div>
 
@@ -448,7 +448,14 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
-  gap: 0.25rem;
+  gap: 0.15rem;
+  white-space: nowrap;
+}
+
+.deadline-days-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
 }
 
 .deadline-num {
@@ -457,13 +464,6 @@ onUnmounted(() => {
   color: var(--coral);
   line-height: 1;
   letter-spacing: -0.04em;
-}
-
-.deadline-label {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.1rem;
 }
 
 .deadline-unit {
