@@ -54,7 +54,11 @@
         </div>
       </div>
 
-      <div style="margin-top:2rem">
+      <div class="hjem-section">
+        <div class="hjem-section-heading">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          Stillingsoversikt
+        </div>
         <div v-if="lbLoading" class="loading">Laster oversikt…</div>
         <table v-else class="leaderboard">
           <thead>
@@ -91,9 +95,9 @@
         </table>
       </div>
 
-      <div class="feed-section">
-        <div class="feed-heading">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <div class="hjem-section feed-section">
+        <div class="hjem-section-heading">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           Siste innleveringer
         </div>
         <div v-if="feedLoading" class="loading">Laster…</div>

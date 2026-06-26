@@ -134,8 +134,12 @@ h1, h2, h3, p { margin: 0; }
 .lb-kudos-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 0.82rem; margin-left: 0.5rem; white-space: nowrap; }
 .lb-kudos-num { font-size: 0.68rem; font-weight: 800; background: var(--border); color: var(--navy); border-radius: 20px; padding: 0 6px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
 
+/* ===== HOME SECTIONS ===== */
+.hjem-section { margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--border); }
+.hjem-section-heading { display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
+
 /* ===== ACTIVITY FEED ===== */
-.feed-section { margin-top: 3rem; }
+.feed-section { }
 .feed-heading { font-weight: 900; font-size: 1rem; letter-spacing: -0.01em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem; color: var(--navy); }
 .feed-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; transition: box-shadow 0.15s; }
 .feed-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
