@@ -1,3 +1,16 @@
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-400.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-400-italic.otf") format("opentype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-500.otf") format("opentype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-500-italic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-600.otf") format("opentype"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-600-italic.otf") format("opentype"); font-weight: 600; font-style: italic; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-700.otf") format("opentype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-700-italic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-800.otf") format("opentype"); font-weight: 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-800-italic.otf") format("opentype"); font-weight: 800; font-style: italic; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-900.otf") format("opentype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Sohne"; src: url("/fonts/sohne-900-italic.otf") format("opentype"); font-weight: 900; font-style: italic; font-display: swap; }
+
 :root {
   --cream: #FFE1C6;
   --navy: #2B2D42;
