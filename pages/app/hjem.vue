@@ -100,7 +100,7 @@
             <button
               class="kudos-btn"
               :class="{ given: item.myKudos }"
-              :disabled="item.isMyTeam"
+              :disabled="item.isMyTeam || item.busy"
               :title="item.isMyTeam ? 'Ikke til eget team' : ''"
               @click="toggleKudos(item)"
             >
@@ -109,7 +109,7 @@
             <button
               class="kudos-btn dislike-btn"
               :class="{ given: item.myDislike }"
-              :disabled="item.isMyTeam"
+              :disabled="item.isMyTeam || item.busy"
               :title="item.isMyTeam ? 'Ikke til eget team' : ''"
               @click="toggleDislike(item)"
             >
@@ -131,6 +131,7 @@ definePageMeta({ middleware: 'auth', layout: 'app' })
 
 const store = useAppStore()
 const sb = useSupabase()
+const { toast } = useToast()
 
 const lbLoading = ref(true)
 const feedLoading = ref(true)
@@ -241,36 +242,66 @@ async function loadData() {
 }
 
 async function toggleKudos(item: any) {
-  if (item.isMyTeam) return
-  const hasGiven = item.myKudos
-  item.myKudos = !hasGiven
-  item.kudosCount += hasGiven ? -1 : 1
-  if (hasGiven) {
-    await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
-  } else {
-    await sb.from('kudos').insert({ submission_id: item.sub.id, from_email: user.value?.email })
-    if (item.myDislike) {
-      item.myDislike = false
-      item.dislikeCount -= 1
-      await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
+  if (item.isMyTeam || item.busy) return
+  const email = user.value?.email
+  if (!email) return
+  item.busy = true
+  const hadKudos = item.myKudos
+  const hadDislike = item.myDislike
+  // Optimistisk oppdatering
+  item.myKudos = !hadKudos
+  item.kudosCount += hadKudos ? -1 : 1
+  if (!hadKudos && hadDislike) { item.myDislike = false; item.dislikeCount -= 1 }
+  try {
+    if (hadKudos) {
+      const { error } = await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', email)
+      if (error) throw error
+    } else {
+      const { error } = await sb.from('kudos').insert({ submission_id: item.sub.id, from_email: email })
+      if (error) throw error
+      // Fjern evt. tidligere dislike (best effort)
+      if (hadDislike) await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', email)
     }
+  } catch {
+    // Rull tilbake ved feil
+    item.myKudos = hadKudos
+    item.kudosCount += hadKudos ? 1 : -1
+    if (!hadKudos && hadDislike) { item.myDislike = true; item.dislikeCount += 1 }
+    toast('Kunne ikke lagre. Prøv igjen.', true)
+  } finally {
+    item.busy = false
   }
 }
 
 async function toggleDislike(item: any) {
-  if (item.isMyTeam) return
-  const hasGiven = item.myDislike
-  item.myDislike = !hasGiven
-  item.dislikeCount += hasGiven ? -1 : 1
-  if (hasGiven) {
-    await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
-  } else {
-    await sb.from('dislikes').insert({ submission_id: item.sub.id, from_email: user.value?.email })
-    if (item.myKudos) {
-      item.myKudos = false
-      item.kudosCount -= 1
-      await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', user.value?.email)
+  if (item.isMyTeam || item.busy) return
+  const email = user.value?.email
+  if (!email) return
+  item.busy = true
+  const hadDislike = item.myDislike
+  const hadKudos = item.myKudos
+  // Optimistisk oppdatering
+  item.myDislike = !hadDislike
+  item.dislikeCount += hadDislike ? -1 : 1
+  if (!hadDislike && hadKudos) { item.myKudos = false; item.kudosCount -= 1 }
+  try {
+    if (hadDislike) {
+      const { error } = await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', email)
+      if (error) throw error
+    } else {
+      const { error } = await sb.from('dislikes').insert({ submission_id: item.sub.id, from_email: email })
+      if (error) throw error
+      // Fjern evt. tidligere kudos (best effort)
+      if (hadKudos) await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', email)
     }
+  } catch {
+    // Rull tilbake ved feil
+    item.myDislike = hadDislike
+    item.dislikeCount += hadDislike ? 1 : -1
+    if (!hadDislike && hadKudos) { item.myKudos = true; item.kudosCount += 1 }
+    toast('Kunne ikke lagre. Prøv igjen.', true)
+  } finally {
+    item.busy = false
   }
 }
 

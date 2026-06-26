@@ -200,7 +200,11 @@ async function submitEntry() {
     if (subErr) throw subErr
     const ptRows = pts.map((p, i) => ({ submission_id: sub.id, content: p.content, link: p.link || null, sort_order: i }))
     const { error: ptErr } = await sb.from('postetekster').insert(ptRows)
-    if (ptErr) throw ptErr
+    if (ptErr) {
+      // Rydd opp foreldreløs submission så den ikke vises som tom produksjon
+      await sb.from('submissions').delete().eq('id', sub.id)
+      throw ptErr
+    }
     successMsg.value = `${form.produksjon} for ${form.kunde} er registrert.`
     submitted.value = true
     toast('Produksjon sendt! 🎉')

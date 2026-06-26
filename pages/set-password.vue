@@ -74,8 +74,22 @@ watch(session, (s, prev) => {
 })
 
 async function markPasswordSet(email: string) {
-  await sb.from('users').update({ password_set: true }).eq('email', email)
+  const { error: dbErr } = await sb.from('users').update({ password_set: true }).eq('email', email)
+  if (dbErr) throw dbErr
   if (store.user) store.user.password_set = true
+}
+
+async function finishAndRedirect() {
+  const email = session.value?.user?.email
+  if (!email) { router.push('/login'); return }
+  try {
+    await markPasswordSet(email)
+  } catch {
+    loading.value = false
+    error.value = 'Kunne ikke fullføre. Prøv igjen, eller ta kontakt med admin.'
+    return
+  }
+  router.push('/app/hjem')
 }
 
 async function submit() {
@@ -90,10 +104,8 @@ async function submit() {
 
   if (err) {
     if (err.message.toLowerCase().includes('different from the old password')) {
-      // Password already set in a previous attempt — mark DB and proceed
-      const email = session.value.user?.email
-      if (email) await markPasswordSet(email)
-      router.push('/app/hjem')
+      // Passordet ble satt i et tidligere forsøk — marker DB og fortsett
+      await finishAndRedirect()
     } else {
       loading.value = false
       error.value = err.message
@@ -101,8 +113,6 @@ async function submit() {
     return
   }
 
-  const email = session.value.user?.email
-  if (email) await markPasswordSet(email)
-  router.push('/app/hjem')
+  await finishAndRedirect()
 }
 </script>
