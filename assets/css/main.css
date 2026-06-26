@@ -135,7 +135,7 @@ h1, h2, h3, p { margin: 0; }
 .lb-kudos-num { font-size: 0.68rem; font-weight: 800; background: var(--border); color: var(--navy); border-radius: 20px; padding: 0 6px; min-width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
 
 /* ===== HOME SECTIONS ===== */
-.hjem-section { margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--border); }
+.hjem-section { margin-top: 3.5rem; padding-top: 3.5rem; }
 .hjem-section-heading { display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
 
 /* ===== ACTIVITY FEED ===== */
