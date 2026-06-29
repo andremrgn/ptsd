@@ -224,21 +224,7 @@ function toggleRoleGroup(role: string) {
   collapsedRoles.value = s
 }
 
-const usersByRoleAndTeam = computed(() =>
-  usersByRole.value.map(group => {
-    const teamMap: Record<string, any[]> = {}
-    group.users.forEach((u: any) => {
-      const key = u.teamName || '–'
-      if (!teamMap[key]) teamMap[key] = []
-      teamMap[key].push(u)
-    })
-    return {
-      role: group.role,
-      totalUsers: group.users.length,
-      teams: Object.entries(teamMap).map(([teamName, users]) => ({ teamName, users })),
-    }
-  })
-)
+
 const usersByRole = computed(() => {
   const groups: { role: string; users: any[] }[] = []
   const seen = new Set<string>()

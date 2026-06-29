@@ -124,7 +124,7 @@
             <button
               class="kudos-btn"
               :class="{ given: item.myKudos }"
-              :disabled="item.isMyTeam || item.busy"
+              :disabled="item.isMyTeam || isBusy(item.sub.id)"
               :title="item.isMyTeam ? 'Ikke til eget team' : ''"
               @click="toggleKudos(item)"
             >
@@ -133,7 +133,7 @@
             <button
               class="kudos-btn dislike-btn"
               :class="{ given: item.myDislike }"
-              :disabled="item.isMyTeam || item.busy"
+              :disabled="item.isMyTeam || isBusy(item.sub.id)"
               :title="item.isMyTeam ? 'Ikke til eget team' : ''"
               @click="toggleDislike(item)"
             >
@@ -291,14 +291,19 @@ async function loadData() {
   await fetchFresh()
 }
 
+const busySubmissions = ref(new Set<string>())
+
+function isBusy(id: string) { return busySubmissions.value.has(id) }
+function setBusy(id: string) { busySubmissions.value = new Set([...busySubmissions.value, id]) }
+function clearBusy(id: string) { const s = new Set(busySubmissions.value); s.delete(id); busySubmissions.value = s }
+
 async function toggleKudos(item: any) {
-  if (item.isMyTeam || item.busy) return
+  if (item.isMyTeam || isBusy(item.sub.id)) return
   const email = user.value?.email
   if (!email) return
-  item.busy = true
+  setBusy(item.sub.id)
   const hadKudos = item.myKudos
   const hadDislike = item.myDislike
-  // Optimistisk oppdatering
   item.myKudos = !hadKudos
   item.kudosCount += hadKudos ? -1 : 1
   if (!hadKudos && hadDislike) { item.myDislike = false; item.dislikeCount -= 1 }
@@ -309,28 +314,25 @@ async function toggleKudos(item: any) {
     } else {
       const { error } = await sb.from('kudos').insert({ submission_id: item.sub.id, from_email: email })
       if (error) throw error
-      // Fjern evt. tidligere dislike (best effort)
       if (hadDislike) await sb.from('dislikes').delete().eq('submission_id', item.sub.id).eq('from_email', email)
     }
   } catch {
-    // Rull tilbake ved feil
     item.myKudos = hadKudos
     item.kudosCount += hadKudos ? 1 : -1
     if (!hadKudos && hadDislike) { item.myDislike = true; item.dislikeCount += 1 }
     toast('Kunne ikke lagre. Prøv igjen.', true)
   } finally {
-    item.busy = false
+    clearBusy(item.sub.id)
   }
 }
 
 async function toggleDislike(item: any) {
-  if (item.isMyTeam || item.busy) return
+  if (item.isMyTeam || isBusy(item.sub.id)) return
   const email = user.value?.email
   if (!email) return
-  item.busy = true
+  setBusy(item.sub.id)
   const hadDislike = item.myDislike
   const hadKudos = item.myKudos
-  // Optimistisk oppdatering
   item.myDislike = !hadDislike
   item.dislikeCount += hadDislike ? -1 : 1
   if (!hadDislike && hadKudos) { item.myKudos = false; item.kudosCount -= 1 }
@@ -341,17 +343,15 @@ async function toggleDislike(item: any) {
     } else {
       const { error } = await sb.from('dislikes').insert({ submission_id: item.sub.id, from_email: email })
       if (error) throw error
-      // Fjern evt. tidligere kudos (best effort)
       if (hadKudos) await sb.from('kudos').delete().eq('submission_id', item.sub.id).eq('from_email', email)
     }
   } catch {
-    // Rull tilbake ved feil
     item.myDislike = hadDislike
     item.dislikeCount += hadDislike ? 1 : -1
     if (!hadDislike && hadKudos) { item.myKudos = true; item.kudosCount += 1 }
     toast('Kunne ikke lagre. Prøv igjen.', true)
   } finally {
-    item.busy = false
+    clearBusy(item.sub.id)
   }
 }
 

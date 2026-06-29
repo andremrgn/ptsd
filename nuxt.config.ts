@@ -29,7 +29,9 @@ export default defineNuxtConfig({
     resendApiKey: '',
     cronSecret: '',
     supabaseServiceKey: '',
-    public: {},
+    public: {
+      appUrl: 'https://solvposten.vercel.app',
+    },
   },
   app: {
     head: {

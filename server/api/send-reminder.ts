@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
           <p style="font-size:1rem;line-height:1.6;margin-bottom:2rem">
             ${message}
           </p>
-          <a href="https://solvposten.vercel.app/app/send-inn"
+          <a href="${config.public.appUrl}/app/send-inn"
             style="display:inline-block;background:#ED555C;color:#ffffff;font-family:system-ui,sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;text-decoration:none;padding:0.85rem 1.75rem;border-radius:2px">
             Send inn postetekster →
           </a>
