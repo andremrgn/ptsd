@@ -197,12 +197,10 @@ const deadlineCountdown = computed(() => {
 
 const quote = ref('')
 
-function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
-  const { teams, subs, allSubs, pts, allKudos, allDislikes } = raw
+// Stillingsoversikten trenger bare team + innsendingstall + kudos
+function processLeaderboard(raw: NonNullable<typeof store.hjemRaw>) {
+  const { teams, allSubs, allKudos } = raw
   if (!teams?.length) return
-
-  const teamsById: Record<string, any> = {}
-  teams.forEach((t: any) => { teamsById[t.id] = t })
 
   const subsByTeam: Record<string, number> = {}
   const subIdToTeam: Record<string, string> = {}
@@ -212,18 +210,9 @@ function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
   })
 
   const kudosByTeam: Record<string, number> = {}
-  const kudosBySubmission: Record<string, string[]> = {}
   ;(allKudos || []).forEach((k: any) => {
     const tid = subIdToTeam[k.submission_id]
     if (tid) kudosByTeam[tid] = (kudosByTeam[tid] || 0) + 1
-    if (!kudosBySubmission[k.submission_id]) kudosBySubmission[k.submission_id] = []
-    kudosBySubmission[k.submission_id].push(k.from_email)
-  })
-
-  const dislikesBySubmission: Record<string, string[]> = {}
-  ;(allDislikes || []).forEach((d: any) => {
-    if (!dislikesBySubmission[d.submission_id]) dislikesBySubmission[d.submission_id] = []
-    dislikesBySubmission[d.submission_id].push(d.from_email)
   })
 
   const sorted = [...teams].sort((a: any, b: any) => (subsByTeam[b.id] || 0) - (subsByTeam[a.id] || 0))
@@ -246,6 +235,26 @@ function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
     kudos: kudosByTeam[t.id] || 0,
   }))
   lbLoading.value = false
+}
+
+// Feeden trenger de tyngre dataene (siste innsendinger, postetekster, dislikes)
+function processFeed(raw: NonNullable<typeof store.hjemRaw>) {
+  const { teams, subs, pts, allKudos, allDislikes } = raw
+
+  const teamsById: Record<string, any> = {}
+  ;(teams || []).forEach((t: any) => { teamsById[t.id] = t })
+
+  const kudosBySubmission: Record<string, string[]> = {}
+  ;(allKudos || []).forEach((k: any) => {
+    if (!kudosBySubmission[k.submission_id]) kudosBySubmission[k.submission_id] = []
+    kudosBySubmission[k.submission_id].push(k.from_email)
+  })
+
+  const dislikesBySubmission: Record<string, string[]> = {}
+  ;(allDislikes || []).forEach((d: any) => {
+    if (!dislikesBySubmission[d.submission_id]) dislikesBySubmission[d.submission_id] = []
+    dislikesBySubmission[d.submission_id].push(d.from_email)
+  })
 
   const ptCount: Record<string, number> = {}
   ;(pts || []).forEach((p: any) => { ptCount[p.submission_id] = (ptCount[p.submission_id] || 0) + 1 })
@@ -269,20 +278,33 @@ function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
   feedLoading.value = false
 }
 
+function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
+  processLeaderboard(raw)
+  processFeed(raw)
+}
+
 async function fetchFresh() {
-  const [{ data: teams }, { data: subs }, { data: allSubs }, { data: pts }, { data: allKudos }, { data: allDislikes }] =
-    await Promise.all([
-      sb.from('teams').select('*').order('name'),
-      sb.from('submissions').select('*').order('submitted_at', { ascending: false }).limit(15),
-      sb.from('submissions').select('id,team_id'),
-      sb.from('postetekster').select('id,submission_id'),
-      sb.from('kudos').select('submission_id,from_email').limit(500),
-      sb.from('dislikes').select('submission_id,from_email').limit(500),
-    ])
+  // To samtidige grupper: stillingsoversikten (lett) tegnes så snart den er klar,
+  // uten å vente på feedens tyngre spørringer
+  const leaderboardQ = Promise.all([
+    sb.from('teams').select('*').order('name'),
+    sb.from('submissions').select('id,team_id'),
+    sb.from('kudos').select('submission_id,from_email').limit(500),
+  ])
+  const feedQ = Promise.all([
+    sb.from('submissions').select('*').order('submitted_at', { ascending: false }).limit(15),
+    sb.from('postetekster').select('id,submission_id'),
+    sb.from('dislikes').select('submission_id,from_email').limit(500),
+  ])
+
+  const [{ data: teams }, { data: allSubs }, { data: allKudos }] = await leaderboardQ
   if (!teams) return
+  processLeaderboard({ teams, allSubs: allSubs || [], allKudos: allKudos || [] } as any)
+
+  const [{ data: subs }, { data: pts }, { data: allDislikes }] = await feedQ
   const raw = { teams, subs: subs || [], allSubs: allSubs || [], pts: pts || [], allKudos: allKudos || [], allDislikes: allDislikes || [], fetchedAt: Date.now() }
+  processFeed(raw)
   store.setHjemRaw(raw)
-  processRaw(raw)
 }
 
 async function loadData() {
