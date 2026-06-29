@@ -36,7 +36,7 @@ import { avatarUrl } from '~/utils/avatar'
 definePageMeta({ middleware: ['auth', 'results'], layout: 'app' })
 
 const store = useAppStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const loading = ref(true)
 const results = ref<any[]>([])
 

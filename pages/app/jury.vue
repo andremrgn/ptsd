@@ -94,7 +94,7 @@ import { useAppStore } from '~/stores/app'
 definePageMeta({ middleware: 'auth', layout: 'app' })
 
 const store = useAppStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const { toast } = useToast()
 
 const juryCode = ref('')

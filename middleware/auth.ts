@@ -10,8 +10,7 @@ export default defineNuxtRouteMiddleware(async () => {
   if (!store.user) {
     const err = await store.loadProfile(authUser.value.email)
     if (err) return navigateTo('/login')
-    await store.loadSettings()
-    await store.loadTeam()
+    await Promise.all([store.loadSettings(), store.loadTeam()])
   }
 
   if (!store.user?.password_set) return navigateTo('/set-password')

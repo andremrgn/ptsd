@@ -192,7 +192,7 @@ import { useAppStore } from '~/stores/app'
 definePageMeta({ middleware: ['auth', 'admin'], layout: 'app' })
 
 const store = useAppStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const { toast } = useToast()
 
 const stats = reactive({ subs: 0, jury: 0, scores: 0 })

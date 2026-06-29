@@ -105,7 +105,7 @@ import { avatarUrl, safeUrl } from '~/utils/avatar'
 definePageMeta({ middleware: 'auth', layout: 'app' })
 
 const store = useAppStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const { toast } = useToast()
 
 const imageInput = ref<HTMLInputElement>()
@@ -143,6 +143,7 @@ async function loadPrevSubs() {
 }
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
 
 function validateImageFile(file: File): boolean {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) { toast('Kun bilder er tillatt (jpg, png, webp)', true); return false }
@@ -187,7 +188,6 @@ async function submitEntry() {
 
   submitting.value = true
   try {
-    const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
     const ext = MIME_EXT[selectedFile.value.type] || 'jpg'
     const fname = `${Date.now()}.${ext}`
     const imageUrl = await uploadImage(selectedFile.value, `submissions/${fname}`)
@@ -235,7 +235,6 @@ async function handleTeamPhoto(e: Event) {
   if (!validateImageFile(file)) return
   toast('Laster opp…')
   try {
-    const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
     const ext = MIME_EXT[file.type] || 'jpg'
     const url = await uploadImage(file, `teams/${store.user?.team_id}.${ext}`)
     await sb.from('teams').update({ image_url: url }).eq('id', store.team.id)

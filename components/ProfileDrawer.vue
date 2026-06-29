@@ -78,9 +78,12 @@ import { useAppStore } from '~/stores/app'
 import { useDrawerStore } from '~/stores/drawer'
 import { avatarUrl, ROLE_LABELS } from '~/utils/avatar'
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
+
 const store = useAppStore()
 const drawerStore = useDrawerStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const { toast } = useToast()
 const router = useRouter()
 
@@ -131,9 +134,6 @@ async function uploadImage(file: File, path: string): Promise<string> {
   const { data: { publicUrl } } = sb.storage.from('uploads').getPublicUrl(path)
   return publicUrl
 }
-
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-const MIME_EXT: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
 
 async function handleProfilePhoto(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]

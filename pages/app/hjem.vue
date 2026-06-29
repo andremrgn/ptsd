@@ -149,16 +149,26 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
-import { avatarUrl, timeAgo, safeUrl, ROLE_LABELS, PARTICIPANT_ROLES } from '~/utils/avatar'
+import { avatarUrl, timeAgo, safeUrl, ROLE_LABELS } from '~/utils/avatar'
+
+const MOTIVATING = [
+  '«Det er ikke om du blir slått ned. Det handler om om du reiser deg igjen.» — Vince Lombardi',
+  '«Faller du syv ganger, reis deg åtte.» — japansk ordtak',
+  '«Suksess er å gå fra fiasko til fiasko uten å miste entusiasmen.» — Winston Churchill',
+]
+const BOASTING = [
+  '«Med stor makt følger stort ansvar.» — Voltaire / Spider-Man',
+  '«Den beste måten å forutsi fremtiden på er å skape den.» — Peter Drucker',
+]
 
 definePageMeta({ middleware: 'auth', layout: 'app' })
 
 const store = useAppStore()
-const sb = useSupabase()
+const sb = useSupabaseClient()
 const { toast } = useToast()
 
-const lbLoading = ref(true)
-const feedLoading = ref(true)
+const lbLoading = ref(!store.hjemRaw)
+const feedLoading = ref(!store.hjemRaw)
 const leaderboard = ref<any[]>([])
 const feed = ref<any[]>([])
 const expandedImages = ref(new Set<string>())
@@ -181,16 +191,6 @@ const deadlineCountdown = computed(() => {
   return days >= 0 ? days : null
 })
 
-
-const MOTIVATING = [
-  '«Det er ikke om du blir slått ned. Det handler om om du reiser deg igjen.» — Vince Lombardi',
-  '«Faller du syv ganger, reis deg åtte.» — japansk ordtak',
-  '«Suksess er å gå fra fiasko til fiasko uten å miste entusiasmen.» — Winston Churchill',
-]
-const BOASTING = [
-  '«Med stor makt følger stort ansvar.» — Voltaire / Spider-Man',
-  '«Den beste måten å forutsi fremtiden på er å skape den.» — Peter Drucker',
-]
 
 const quote = ref('')
 

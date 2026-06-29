@@ -21,6 +21,9 @@ export interface AppTeam {
   updated_at: string
 }
 
+const HJEM_CACHE_KEY = 'sp_hjem_raw'
+const HJEM_TTL = 5 * 60 * 1000
+
 export const useAppStore = defineStore('app', () => {
   const user = ref<AppUser | null>(null)
   const team = ref<AppTeam | null>(null)
@@ -66,9 +69,6 @@ export const useAppStore = defineStore('app', () => {
     const { data } = await sb.from('teams').select('*').eq('id', user.value.team_id).single()
     if (data) team.value = data
   }
-
-  const HJEM_CACHE_KEY = 'sp_hjem_raw'
-  const HJEM_TTL = 5 * 60 * 1000
 
   type HjemRaw = {
     teams: any[]
