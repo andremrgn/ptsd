@@ -95,6 +95,28 @@
         </div>
       </div>
 
+      <!-- Informer deltakere -->
+      <div class="mb1 mt2">
+        <div class="section-title">Informer deltakere</div>
+        <p style="font-size:0.83rem;color:var(--muted);margin-bottom:0.85rem">Sender intro-mailen «Sølvposten er i gang» til de avkryssede rådgiverne og prosjektlederne.</p>
+        <div v-if="introCandidates.length" class="table-wrap" style="margin-bottom:0.85rem">
+          <table class="data-table">
+            <tbody>
+              <tr v-for="u in introCandidates" :key="u.email">
+                <td style="width:38px"><input type="checkbox" :value="u.email" v-model="introSelected" /></td>
+                <td>{{ u.full_name }}</td>
+                <td class="email-col" style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                <td style="color:var(--muted);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase">{{ u.role }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-else style="font-size:0.82rem;color:var(--muted)">Ingen rådgivere eller prosjektledere funnet.</p>
+        <button class="btn btn-sm" :disabled="introSending || !introSelected.length" @click="sendIntro">
+          {{ introSending ? 'Sender…' : `Send introduksjon (${introSelected.length})` }}
+        </button>
+      </div>
+
       <!-- Jury members -->
       <div class="mb1 mt2">
         <div class="section-title">Jurymedlemmer</div>
@@ -217,6 +239,17 @@ const reminderSending = ref<string | null>(null)
 
 const ROLE_ORDER = ['kreatør', 'rådgiver', 'prosjektleder', 'designer', 'film', 'drift']
 const collapsedRoles = ref<Set<string>>(new Set())
+
+// Intro-mail til rådgivere/prosjektledere
+const INTRO_ROLES = ['rådgiver', 'prosjektleder']
+const INTRO_DEFAULT_EXCLUDE = ['per@mrgn.no', 'synne@mrgn.no']
+const introSelected = ref<string[]>([])
+const introSending = ref(false)
+const introCandidates = computed(() =>
+  allUsers.value
+    .filter(u => INTRO_ROLES.includes(u.role))
+    .sort((a, b) => INTRO_ROLES.indexOf(a.role) - INTRO_ROLES.indexOf(b.role) || a.full_name.localeCompare(b.full_name, 'no')),
+)
 
 function toggleRoleGroup(role: string) {
   const s = new Set(collapsedRoles.value)
@@ -341,7 +374,26 @@ async function loadUsersTable() {
     ...u,
     teamName: u.team_id ? (teamsById[u.team_id] || '–') : '–',
   }))
+  // Standard: kryss av alle rådgivere/prosjektledere unntatt de som er ekskludert
+  introSelected.value = allUsers.value
+    .filter(u => INTRO_ROLES.includes(u.role) && !INTRO_DEFAULT_EXCLUDE.includes(u.email))
+    .map(u => u.email)
   usersLoading.value = false
+}
+
+async function sendIntro() {
+  if (!introSelected.value.length) return
+  if (!confirm(`Sende intro-mailen til ${introSelected.value.length} ${introSelected.value.length === 1 ? 'person' : 'personer'}?`)) return
+  introSending.value = true
+  try {
+    const res: any = await $fetch('/api/send-intro', { method: 'POST', body: { emails: introSelected.value } })
+    toast(`Sendt til ${res.sent.length} ${res.sent.length === 1 ? 'person' : 'personer'} ✓`)
+    if (res.failed?.length) toast(`Feilet: ${res.failed.join(', ')}`, true)
+  } catch (e: any) {
+    toast('Feil: ' + (e?.data?.message || e?.message || 'ukjent feil'), true)
+  } finally {
+    introSending.value = false
+  }
 }
 
 async function loadSubTable() {
