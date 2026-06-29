@@ -63,7 +63,7 @@
                 :class="{ expanded: expandedImages.has(item.sub.id) }"
                 @click="toggleImg(item.sub.id)"
               >
-                <img :src="item.sub.image_url" alt="" :class="{ expanded: expandedImages.has(item.sub.id) }" />
+                <img :src="item.sub.image_url" alt="" loading="lazy" decoding="async" :class="{ expanded: expandedImages.has(item.sub.id) }" />
               </div>
               <div class="jury-texts">
                 <div v-for="pt in item.postetekster" :key="pt.id" class="jury-card-content">{{ pt.content }}</div>

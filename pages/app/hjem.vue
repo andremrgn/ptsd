@@ -17,6 +17,7 @@
           class="sub-detail-screenshot"
           :class="{ expanded: imgExpanded }"
           alt=""
+          decoding="async"
           @click="imgExpanded = !imgExpanded"
         />
         <a v-if="safeUrl(subDetail.sub.link)" :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-bottom:1.5rem">
@@ -117,6 +118,8 @@
             :class="{ expanded: expandedImages.has(item.sub.id) }"
             :src="item.sub.image_url"
             alt=""
+            loading="lazy"
+            decoding="async"
             @click="toggleImg(item.sub.id)"
           />
           <div class="feed-card-footer">

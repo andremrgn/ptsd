@@ -21,7 +21,7 @@
       <div v-if="prevSubs.length" style="margin-bottom:1.5rem">
         <div style="font-weight:700;font-size:0.85rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:0.75rem;opacity:.6">Sendte produksjoner</div>
         <div v-for="s in prevSubs" :key="s.id" class="prod-card">
-          <img class="prod-thumb" :src="s.image_url" alt="" />
+          <img class="prod-thumb" :src="s.image_url" alt="" loading="lazy" decoding="async" />
           <div class="prod-info">
             <div class="prod-title">{{ s.produksjon }}</div>
             <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
