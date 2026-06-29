@@ -24,6 +24,7 @@
           <img class="prod-thumb" :src="s.image_url" alt="" />
           <div class="prod-info">
             <div class="prod-title">{{ s.produksjon }}</div>
+            <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
             <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
           </div>
         </div>
@@ -32,6 +33,15 @@
       <!-- Submit form -->
       <div v-if="!submitted">
         <div class="form-card">
+          <!-- Team-velger for rådgivere/prosjektledere uten fast team -->
+          <div v-if="!hasFixedTeam" class="form-group">
+            <label class="form-label">Hvilket team skrev postetekstene? <span style="color:var(--coral)">*</span></label>
+            <select v-model="selectedTeamId" class="form-input">
+              <option value="" disabled>Velg team…</option>
+              <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Kunde</label>
@@ -118,6 +128,11 @@ const submitting = ref(false)
 const successMsg = ref('')
 const prevSubs = ref<any[]>([])
 const teamMembers = ref('')
+const teams = ref<any[]>([])
+const selectedTeamId = ref(store.user?.team_id || '')
+
+// Kreatører har fast team_id; rådgivere/prosjektledere må velge team ved innsending
+const hasFixedTeam = computed(() => !!store.user?.team_id)
 
 const form = reactive({ kunde: '', produksjon: '', link: '' })
 const postetekster = reactive([{ content: '', link: '' }])
@@ -129,17 +144,33 @@ const teamPhoto = computed(() => {
 })
 
 onMounted(async () => {
-  await loadPrevSubs()
   if (store.user?.team_id) {
+    await loadPrevSubs()
     const { data } = await sb.from('users').select('full_name').eq('team_id', store.user.team_id)
     if (data) teamMembers.value = data.map((m: any) => m.full_name).join(' & ')
+  } else {
+    // Uten fast team: hent alle team så brukeren kan velge hvem teksten tilhører,
+    // og så innsendingene kan merkes med team de gjelder
+    const { data } = await sb.from('teams').select('id, name').order('name')
+    teams.value = data || []
+    await loadPrevSubs()
   }
 })
 
 async function loadPrevSubs() {
-  if (!store.user?.team_id) return
-  const { data } = await sb.from('submissions').select('*').eq('team_id', store.user.team_id).order('submitted_at', { ascending: false })
-  prevSubs.value = data || []
+  // Kreatører ser teamets innsendinger; rådgivere/prosjektledere ser sine egne
+  const query = sb.from('submissions').select('*').order('submitted_at', { ascending: false })
+  if (store.user?.team_id) query.eq('team_id', store.user.team_id)
+  else if (store.user?.email) query.eq('submitted_by', store.user.email)
+  else return
+  const { data } = await query
+  // Uten fast team kan innsendingene spenne over flere team — merk hver med teamnavn
+  if (!store.user?.team_id) {
+    const teamName: Record<string, string> = Object.fromEntries(teams.value.map((t: any) => [t.id, t.name]))
+    prevSubs.value = (data || []).map((s: any) => ({ ...s, teamName: teamName[s.team_id] || 'Ukjent team' }))
+  } else {
+    prevSubs.value = data || []
+  }
 }
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -184,7 +215,9 @@ async function submitEntry() {
   if (!form.link) { toast('Legg inn link til innleggene', true); return }
   const pts = postetekster.filter(p => p.content.trim())
   if (!pts.length) { toast('Skriv minst én postetekst', true); return }
-  if (!store.user?.team_id) { toast('Ingen team funnet for brukeren din', true); return }
+  // Kreatører bruker eget team_id; andre må ha valgt et team i nedtrekkslisten
+  const teamId = store.user?.team_id || selectedTeamId.value
+  if (!teamId) { toast('Velg hvilket team postetekstene tilhører', true); return }
 
   submitting.value = true
   try {
@@ -192,8 +225,8 @@ async function submitEntry() {
     const fname = `${Date.now()}.${ext}`
     const imageUrl = await uploadImage(selectedFile.value, `submissions/${fname}`)
     const { data: sub, error: subErr } = await sb.from('submissions').insert({
-      team_id: store.user.team_id,
-      submitted_by: store.user.email,
+      team_id: teamId,
+      submitted_by: store.user!.email,
       kunde: form.kunde,
       produksjon: form.produksjon,
       image_url: imageUrl,
@@ -227,6 +260,9 @@ function resetForm() {
   previewUrl.value = ''
   postetekster.splice(0, postetekster.length, { content: '', link: '' })
   if (imageInput.value) imageInput.value.value = ''
+  // Nullstill team-valg så neste innsending bevisst knyttes til riktig team
+  // (kreatører beholder sitt faste team, andre må velge på nytt)
+  selectedTeamId.value = store.user?.team_id || ''
 }
 
 async function handleTeamPhoto(e: Event) {
