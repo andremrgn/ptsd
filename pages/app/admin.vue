@@ -128,20 +128,20 @@
         <div class="section-title">Brukere</div>
         <div v-if="usersLoading" class="loading">Laster…</div>
         <div v-else class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>Navn</th><th>E-post</th><th>Team</th><th></th></tr></thead>
+          <table class="data-table users-table">
+            <thead><tr><th>Navn</th><th class="email-col">E-post</th><th>Team</th><th></th></tr></thead>
             <tbody>
               <template v-for="group in usersByRole" :key="group.role">
                 <tr class="role-group-header" style="cursor:pointer" @click="toggleRoleGroup(group.role)">
                   <td>{{ group.role }}</td>
-                  <td></td>
+                  <td class="email-col"></td>
                   <td></td>
                   <td style="text-align:right;font-size:0.65rem;opacity:0.5">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }} {{ group.users.length }}</td>
                 </tr>
                 <template v-if="!collapsedRoles.has(group.role)">
                   <tr v-for="u in group.users" :key="u.email">
                     <td>{{ u.full_name }}</td>
-                    <td style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
+                    <td class="email-col" style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
                     <td>{{ u.teamName }}</td>
                     <td>
                       <button

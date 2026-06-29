@@ -83,7 +83,7 @@
                   <img class="lb-avatar" :src="row.teamPhoto" alt="" />
                   <span>
                     {{ row.team.name }}
-                    <span v-if="row.team.id === store.user?.team_id" style="font-size:.7rem;background:var(--coral);color:white;padding:1px 6px;border-radius:10px;margin-left:4px">Ditt team</span>
+                    <span v-if="row.team.id === store.user?.team_id" class="lb-myteam-badge" style="font-size:.7rem;background:var(--coral);color:white;padding:1px 6px;border-radius:10px;margin-left:4px;white-space:nowrap">Ditt team</span>
                   </span>
                   <span v-if="row.kudos > 0" class="lb-kudos-badge" :title="`${row.kudos} kudos`">
                     👏<span class="lb-kudos-num">{{ row.kudos }}</span>

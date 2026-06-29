@@ -331,11 +331,17 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .data-table { min-width: 480px; }
 
+  /* Brukertabellen skal få plass uten horisontal scroll: skjul e-post,
+     behold navn + team + knapp så rolle-etiketten alltid er synlig */
+  .users-table { min-width: 0; }
+  .users-table .email-col { display: none; }
+
   /* Leaderboard */
   .leaderboard { font-size: 0.82rem; }
   .leaderboard td, .leaderboard th { padding: 0.65rem 0.5rem; }
   .lb-avatar { width: 24px; height: 24px; }
   .lb-kudos-badge { display: none; }
+  .lb-myteam-badge { display: none; }
 
   /* Feed */
   .feed-card-top { padding: 0.75rem 0.85rem 0.6rem; }
