@@ -26,31 +26,17 @@ export default defineEventHandler(async (event) => {
 
   const resend = new Resend(config.resendApiKey)
   const message = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
-  const firstName = person.full_name.split(' ')[0]
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
   const { error } = await resend.emails.send({
     from: 'Sølvposten <solvposten@mrgn.no>',
     to: person.email,
     subject: message,
-    html: `
-      <div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:2rem;color:#2B2D42">
-        <p style="font-size:1.4rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:1.5rem">
-          Hei ${firstName} 👋
-        </p>
-        <p style="font-size:1rem;line-height:1.6;margin-bottom:2rem">
-          ${message}
-        </p>
-        <a href="${config.public.appUrl}/app/send-inn"
-          style="display:inline-block;background:#ED555C;color:#ffffff;font-family:system-ui,sans-serif;font-size:0.85rem;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;text-decoration:none;padding:0.85rem 1.75rem;border-radius:2px">
-          Send inn postetekster →
-        </a>
-        <hr style="border:none;border-top:1px solid #eee;margin:2rem 0 1rem">
-        <p style="font-size:0.8rem;color:#999">
-          Hilsen Sølvposten, et initiativ for faglig stolthet
-        </p>
-      </div>
-    `,
+    html: renderMail({
+      firstName: person.full_name.split(' ')[0],
+      bodyHtml: `<p style="font-size:1rem;line-height:1.6;margin-bottom:2rem">${message}</p>`,
+      ctaUrl: `${config.public.appUrl}/app/send-inn`,
+      ctaText: 'Send inn postetekster →',
+    }),
   })
 
   if (error) throw createError({ statusCode: 500, message: error.message })

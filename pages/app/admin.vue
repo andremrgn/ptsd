@@ -100,7 +100,7 @@
         <div class="section-title">Informer deltakere</div>
         <p style="font-size:0.83rem;color:var(--muted);margin-bottom:0.85rem">Sender intro-mailen «Sølvposten er i gang» til de avkryssede rådgiverne og prosjektlederne.</p>
         <div v-if="introCandidates.length" class="table-wrap" style="margin-bottom:0.85rem">
-          <table class="data-table">
+          <table class="data-table users-table">
             <tbody>
               <tr v-for="u in introCandidates" :key="u.email">
                 <td style="width:38px"><input type="checkbox" :value="u.email" v-model="introSelected" /></td>
