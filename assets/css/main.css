@@ -88,9 +88,6 @@ h1, h2, h3, p { margin: 0; }
 .tab-btn { font-family: "Sohne", sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; padding: 0.9rem 1.1rem; border: none; background: transparent; color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all 0.15s; white-space: nowrap; }
 .tab-btn:hover { color: var(--navy); }
 .tab-btn.active { color: var(--coral); border-bottom-color: var(--coral); }
-.tab-btn-cta { font-family: "Sohne", sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.45rem 1rem; margin-left: 0.5rem; background: var(--coral); color: white; border: none; border-radius: 20px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: opacity 0.15s; border-bottom: none; white-space: nowrap; }
-.tab-btn-cta:hover { opacity: 0.85; }
-
 /* ===== PAGE SECTIONS ===== */
 .page-section { display: block; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
@@ -141,8 +138,6 @@ h1, h2, h3, p { margin: 0; }
 .hjem-section-heading { display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
 
 /* ===== ACTIVITY FEED ===== */
-.feed-section { }
-.feed-heading { font-weight: 900; font-size: 1rem; letter-spacing: -0.01em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.6rem; color: var(--navy); }
 .feed-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; transition: box-shadow 0.15s; }
 .feed-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
 .feed-card-top { display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.1rem 0.75rem; cursor: pointer; }
@@ -241,23 +236,6 @@ h1, h2, h3, p { margin: 0; }
 .add-row .form-input { flex: 1; min-width: 120px; }
 code { font-family: "Courier New", monospace; font-size: 0.85em; background: rgba(43,45,66,0.07); padding: 0.1em 0.35em; border-radius: 2px; font-weight: 600; letter-spacing: 0.04em; }
 
-/* ===== ROLE ACCORDION ===== */
-.role-accordion { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-.role-accordion-group { border-bottom: 1px solid var(--border); }
-.role-accordion-group:last-child { border-bottom: none; }
-.role-accordion-header { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1rem; background: var(--surface); cursor: pointer; user-select: none; transition: background 0.1s; }
-.role-accordion-header:hover { background: #ebebeb; }
-.role-accordion-header span:first-child { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-.role-accordion-count { font-size: 0.65rem; color: var(--muted); }
-.role-accordion-body { }
-.user-team-row { display: flex; border-bottom: 1px solid var(--border); }
-.user-team-row:last-child { border-bottom: none; }
-.user-cell { flex: 1; padding: 0.75rem 1rem; border-right: 1px solid var(--border); }
-.user-cell:last-child { border-right: none; }
-.user-cell:only-child { max-width: 320px; }
-.user-cell-name { font-size: 0.88rem; font-weight: 600; color: var(--navy); }
-.user-cell-email { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
-
 /* ===== DRAWER ===== */
 .drawer-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(43,45,66,0.4); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .drawer-overlay.open { opacity: 1; pointer-events: all; }
@@ -292,12 +270,6 @@ code { font-family: "Courier New", monospace; font-size: 0.85em; background: rgb
 .drawer-admin-btn:hover { background: var(--coral); color: var(--white); }
 .drawer-team-photo-row { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0; }
 .drawer-team-photo-hint { font-size: 0.78rem; color: var(--muted); line-height: 1.45; }
-
-/* ===== ADMIN LOGIN MODAL ===== */
-.admin-login-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(43,45,66,0.85); display: flex; align-items: center; justify-content: center; padding: 2rem; }
-.admin-login-card { width: 100%; max-width: 380px; background: var(--white); border-radius: var(--radius); padding: 2rem; animation: slideUp 0.3s ease; }
-.admin-login-card h2 { font-weight: 900; font-size: 1.5rem; letter-spacing: -0.02em; color: var(--navy); margin-bottom: 0.35rem; }
-.admin-login-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.25rem; }
 
 /* ===== TYPE ===== */
 .eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--coral); margin-bottom: 0.5rem; }

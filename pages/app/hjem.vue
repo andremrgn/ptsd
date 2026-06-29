@@ -194,7 +194,7 @@ const BOASTING = [
 
 const quote = ref('')
 
-function processRaw(raw: NonNullable<typeof store.hjemRaw.value>) {
+function processRaw(raw: NonNullable<typeof store.hjemRaw>) {
   const { teams, subs, allSubs, pts, allKudos, allDislikes } = raw
   if (!teams?.length) return
 
@@ -228,11 +228,13 @@ function processRaw(raw: NonNullable<typeof store.hjemRaw.value>) {
   const myRank = sorted.findIndex((t: any) => t.id === myTeamId)
   const isLeading = myRank === 0 && (subsByTeam[myTeamId!] || 0) > 0
 
-  quote.value = isLeading
-    ? BOASTING[Math.floor(Math.random() * BOASTING.length)]
-    : myRank > 0
-      ? MOTIVATING[Math.floor(Math.random() * MOTIVATING.length)]
-      : ''
+  if (!quote.value) {
+    quote.value = isLeading
+      ? BOASTING[Math.floor(Math.random() * BOASTING.length)]
+      : myRank > 0
+        ? MOTIVATING[Math.floor(Math.random() * MOTIVATING.length)]
+        : ''
+  }
 
   leaderboard.value = sorted.map((t: any) => ({
     team: t,
@@ -396,12 +398,10 @@ function onPopState() {
 onMounted(() => {
   loadData()
   window.addEventListener('popstate', onPopState)
-
 })
 
 onUnmounted(() => {
   window.removeEventListener('popstate', onPopState)
-
 })
 </script>
 

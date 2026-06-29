@@ -224,7 +224,6 @@ function toggleRoleGroup(role: string) {
   collapsedRoles.value = s
 }
 
-
 const usersByRole = computed(() => {
   const groups: { role: string; users: any[] }[] = []
   const seen = new Set<string>()

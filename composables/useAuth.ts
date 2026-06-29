@@ -34,9 +34,10 @@ export function useAuth() {
       return 'Bruk din @mrgn.no-adresse.'
     }
 
+    const config = useRuntimeConfig()
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: 'https://solvposten.vercel.app/confirm' },
+      options: { emailRedirectTo: `${config.public.appUrl}/confirm` },
     })
 
     if (error) return error.message

@@ -26,14 +26,14 @@
     >
       Jury
     </NuxtLink>
-    <button
+    <NuxtLink
       v-if="store.user?.is_admin"
+      to="/app/admin"
       class="tab-btn"
       :class="{ active: route.path === '/app/admin' }"
-      @click="handleAdminClick"
     >
       Admin
-    </button>
+    </NuxtLink>
   </nav>
 </template>
 
@@ -42,9 +42,4 @@ import { useAppStore } from '~/stores/app'
 
 const store = useAppStore()
 const route = useRoute()
-const router = useRouter()
-
-function handleAdminClick() {
-  router.push('/app/admin')
-}
 </script>
