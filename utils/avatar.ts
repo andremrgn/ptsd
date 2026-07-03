@@ -62,17 +62,35 @@ export function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}d siden`
 }
 
-// Bygger en dyplenke inn i Metas (offentlige) annonsebibliotek som viser
-// annonsørens annonser i et land. Søker på annonsør (side) ut fra kundenavn —
-// robust uansett hvordan posteteksten er formatert (overskrifter, kulepunkter osv.).
-export function metaAdLibraryUrl(advertiser: string, country = 'NO'): string {
+// Trekker ut en søkbar frase fra en postetekst: fjerner emojis, hopper over
+// korte overskrifter og kulepunkt-markører, og tar første faktiske tekstlinje
+// (første setning). Slik unngår vi at f.eks. en tittel som «Potte tett» havner
+// i søket i stedet for selve annonseteksten.
+function extractAdPhrase(text: string): string {
+  const clean = (s: string) => s
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{2190}-\u{21FF}\u{2022}]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const lines = (text || '')
+    .split(/\n+/)
+    .map(l => clean(l.replace(/^[\s•·*\-–]+/, '')))
+    .filter(Boolean)
+  // Første «innholdslinje»: har setningstegn eller er lang nok (hopper over korte titler)
+  const line = lines.find(l => /[.!?]/.test(l) || l.length >= 20) || lines[0] || ''
+  // Ta første setning for et presist frasesøk
+  const sentence = line.match(/^(.{10,}?[.!?])(\s|$)/)
+  return (sentence ? sentence[1] : line).trim()
+}
+
+// Bygger en dyplenke inn i Metas (offentlige) annonsebibliotek som søker opp
+// uttaket ut fra selve annonseteksten (nøkkelordsøk på første tekstlinje).
+export function metaAdLibraryUrl(text: string, country = 'NO'): string {
   const params = new URLSearchParams({
     active_status: 'all',
     ad_type: 'all',
     country,
     media_type: 'all',
-    search_type: 'page',
-    q: (advertiser || '').trim(),
+    q: extractAdPhrase(text),
   })
   return `https://www.facebook.com/ads/library/?${params.toString()}`
 }

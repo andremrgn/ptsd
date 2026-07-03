@@ -26,10 +26,12 @@
             <div class="prod-title">{{ s.produksjon }}</div>
             <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
             <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
-            <a v-if="s.kunde" :href="metaAdLibraryUrl(s.kunde)" target="_blank" rel="noopener noreferrer" class="meta-lib-link" style="margin-top:0.6rem">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              Finn uttaket på Meta
-            </a>
+            <div v-if="s.postetekster && s.postetekster.length" class="prod-uttak-links">
+              <a v-for="(c, i) in s.postetekster" :key="i" :href="metaAdLibraryUrl(c)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Finn uttak{{ s.postetekster.length > 1 ? ' ' + (i + 1) : 'et på Meta' }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -168,12 +170,31 @@ async function loadPrevSubs() {
   else if (store.user?.email) query.eq('submitted_by', store.user.email)
   else return
   const { data } = await query
+  let subs = data || []
+
+  // Hent postetekstene så vi kan lage en presis «Finn uttaket»-lenke per innlegg
+  if (subs.length) {
+    const ids = subs.map((s: any) => s.id)
+    const { data: pts } = await sb
+      .from('postetekster')
+      .select('submission_id, content, sort_order')
+      .in('submission_id', ids)
+      .order('sort_order')
+    const bySub: Record<string, string[]> = {}
+    ;(pts || []).forEach((p: any) => {
+      if (!p.content) return
+      if (!bySub[p.submission_id]) bySub[p.submission_id] = []
+      bySub[p.submission_id].push(p.content)
+    })
+    subs = subs.map((s: any) => ({ ...s, postetekster: bySub[s.id] || [] }))
+  }
+
   // Uten fast team kan innsendingene spenne over flere team — merk hver med teamnavn
   if (!store.user?.team_id) {
     const teamName: Record<string, string> = Object.fromEntries(teams.value.map((t: any) => [t.id, t.name]))
-    prevSubs.value = (data || []).map((s: any) => ({ ...s, teamName: teamName[s.team_id] || 'Ukjent team' }))
+    prevSubs.value = subs.map((s: any) => ({ ...s, teamName: teamName[s.team_id] || 'Ukjent team' }))
   } else {
-    prevSubs.value = data || []
+    prevSubs.value = subs
   }
 }
 
