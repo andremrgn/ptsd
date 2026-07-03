@@ -170,8 +170,8 @@ h1, h2, h3, p { margin: 0; }
 .sub-detail-tekst-content { font-size: 0.92rem; line-height: 1.6; white-space: pre-wrap; color: var(--navy); }
 .sub-detail-some-link { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 1rem; padding: 0.55rem 1rem; background: var(--navy); color: var(--cream); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; border-radius: var(--radius); transition: opacity 0.15s; }
 .sub-detail-some-link:hover { opacity: 0.85; }
-.sub-detail-tekst-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-.sub-detail-tekst-links .sub-detail-some-link { margin-top: 0; }
+.sub-detail-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.sub-detail-links .sub-detail-some-link { margin-top: 0; margin-bottom: 0; }
 .meta-lib-link { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1rem; background: transparent; color: var(--navy); border: 1.5px solid var(--border); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; border-radius: var(--radius); transition: all 0.15s; }
 .meta-lib-link:hover { border-color: var(--navy); background: var(--navy); color: var(--cream); }
 

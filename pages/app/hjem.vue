@@ -20,25 +20,25 @@
           decoding="async"
           @click="imgExpanded = !imgExpanded"
         />
-        <a v-if="safeUrl(subDetail.sub.link)" :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-bottom:1.5rem">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Se innleggene på sosiale medier
-        </a>
+        <div class="sub-detail-links" style="margin-bottom:1.5rem">
+          <a v-if="safeUrl(subDetail.sub.link)" :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Se innleggene på sosiale medier
+          </a>
+          <a v-if="subDetail.sub.kunde" :href="metaAdLibraryUrl(subDetail.sub.kunde)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Finn uttaket på Meta
+          </a>
+        </div>
 
         <div class="sub-detail-tekster">
           <div v-for="(pt, i) in subDetail.postetekster" :key="pt.id" class="sub-detail-tekst">
             <div class="sub-detail-tekst-num">Innlegg {{ i + 1 }}</div>
             <div class="sub-detail-tekst-content">{{ pt.content }}</div>
-            <div class="sub-detail-tekst-links">
-              <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Se dette innlegget
-              </a>
-              <a v-if="pt.content" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Finn uttaket på Meta
-              </a>
-            </div>
+            <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-top:0.75rem">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Se dette innlegget
+            </a>
           </div>
         </div>
       </template>

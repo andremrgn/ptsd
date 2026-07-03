@@ -26,6 +26,10 @@
             <div class="prod-title">{{ s.produksjon }}</div>
             <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
             <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
+            <a v-if="s.kunde" :href="metaAdLibraryUrl(s.kunde)" target="_blank" rel="noopener noreferrer" class="meta-lib-link" style="margin-top:0.6rem">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Finn uttaket på Meta
+            </a>
           </div>
         </div>
       </div>
@@ -110,7 +114,7 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
-import { avatarUrl, safeUrl } from '~/utils/avatar'
+import { avatarUrl, safeUrl, metaAdLibraryUrl } from '~/utils/avatar'
 
 definePageMeta({ middleware: 'auth', layout: 'app' })
 
