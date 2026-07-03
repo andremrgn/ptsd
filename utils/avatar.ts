@@ -61,3 +61,30 @@ export function timeAgo(dateStr: string): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)}t siden`
   return `${Math.floor(diff / 86400)}d siden`
 }
+
+// Bygger en dyplenke inn i Metas (offentlige) annonsebibliotek som søker opp
+// uttaket ut fra selve posteteksten. Bruker eksakt frase på den mest
+// distinktive delen av teksten, filtrert på land.
+export function metaAdLibraryUrl(text: string, country = 'NO'): string {
+  const clean = (text || '')
+    // fjern emojis/symboler som forstyrrer frasesøket
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{2190}-\u{21FF}]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  // Første hele setning (min. 10 tegn), ellers de første ~60 tegn på ordgrense
+  let phrase = clean
+  const sentence = clean.match(/^(.{10,}?[.!?])(\s|$)/)
+  if (sentence) phrase = sentence[1]
+  else if (clean.length > 60) phrase = clean.slice(0, 60).replace(/\s\S*$/, '')
+
+  const params = new URLSearchParams({
+    active_status: 'all',
+    ad_type: 'all',
+    country,
+    media_type: 'all',
+    search_type: 'keyword_exact_phrase',
+    q: phrase,
+  })
+  return `https://www.facebook.com/ads/library/?${params.toString()}`
+}
