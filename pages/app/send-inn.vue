@@ -27,9 +27,9 @@
             <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
             <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
             <div v-if="s.postetekster && s.postetekster.length" class="prod-uttak-links">
-              <a v-for="(c, i) in s.postetekster" :key="i" :href="metaAdLibraryUrl(c)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
+              <a v-for="(pt, i) in s.postetekster" :key="i" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Finn uttak{{ s.postetekster.length > 1 ? ' ' + (i + 1) : 'et på Meta' }}
+                {{ pt.title ? 'Finn: ' + pt.title : (s.postetekster.length > 1 ? 'Finn uttak ' + (i + 1) : 'Finn uttaket på Meta') }}
               </a>
             </div>
           </div>
@@ -90,10 +90,14 @@
                 <span style="font-size:0.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6">Innlegg {{ i + 1 }}</span>
                 <button v-if="i > 0" class="postetekst-remove" @click="postetekster.splice(i, 1)">✕</button>
               </div>
-              <textarea v-model="pt.content" class="form-input form-textarea" placeholder="Skriv postetekst her…" rows="4" />
-              <input v-model="pt.link" type="url" class="form-input" placeholder="Link til dette innlegget (valgfritt)" style="margin-top:0.4rem" />
+              <input v-model="pt.title" type="text" class="form-input" placeholder="Navn på uttaket (valgfritt)" style="margin-bottom:0.4rem" />
+              <textarea v-model="pt.content" class="form-input form-textarea" placeholder="Skriv posteteksten ordrett, slik den står i annonsen…" rows="4" />
+              <a v-if="pt.content.trim()" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link" style="margin-top:0.5rem">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Finn på Meta
+              </a>
             </div>
-            <button class="btn btn-outline btn-sm" style="margin-top:0.75rem" @click="postetekster.push({ content: '', link: '' })">+ Legg til tekst</button>
+            <button class="btn btn-outline btn-sm" style="margin-top:0.75rem" @click="postetekster.push({ title: '', content: '' })">+ Legg til tekst</button>
           </div>
 
           <button class="btn" :disabled="submitting" @click="submitEntry">
@@ -141,7 +145,7 @@ const selectedTeamId = ref(store.user?.team_id || '')
 const hasFixedTeam = computed(() => !!store.user?.team_id)
 
 const form = reactive({ kunde: '', produksjon: '', link: '' })
-const postetekster = reactive([{ content: '', link: '' }])
+const postetekster = reactive<{ title: string; content: string }[]>([{ title: '', content: '' }])
 
 const teamPhoto = computed(() => {
   const t = store.team
@@ -177,14 +181,14 @@ async function loadPrevSubs() {
     const ids = subs.map((s: any) => s.id)
     const { data: pts } = await sb
       .from('postetekster')
-      .select('submission_id, content, sort_order')
+      .select('submission_id, title, content, sort_order')
       .in('submission_id', ids)
       .order('sort_order')
-    const bySub: Record<string, string[]> = {}
+    const bySub: Record<string, { title: string | null; content: string }[]> = {}
     ;(pts || []).forEach((p: any) => {
       if (!p.content) return
       if (!bySub[p.submission_id]) bySub[p.submission_id] = []
-      bySub[p.submission_id].push(p.content)
+      bySub[p.submission_id].push({ title: p.title, content: p.content })
     })
     subs = subs.map((s: any) => ({ ...s, postetekster: bySub[s.id] || [] }))
   }
@@ -258,7 +262,7 @@ async function submitEntry() {
       link: form.link,
     }).select().single()
     if (subErr) throw subErr
-    const ptRows = pts.map((p, i) => ({ submission_id: sub.id, content: p.content, link: p.link || null, sort_order: i }))
+    const ptRows = pts.map((p, i) => ({ submission_id: sub.id, title: p.title || null, content: p.content, sort_order: i }))
     const { error: ptErr } = await sb.from('postetekster').insert(ptRows)
     if (ptErr) {
       // Rydd opp foreldreløs submission så den ikke vises som tom produksjon
@@ -283,7 +287,7 @@ function resetForm() {
   form.link = ''
   selectedFile.value = null
   previewUrl.value = ''
-  postetekster.splice(0, postetekster.length, { content: '', link: '' })
+  postetekster.splice(0, postetekster.length, { title: '', content: '' })
   if (imageInput.value) imageInput.value.value = ''
   // Nullstill team-valg så neste innsending bevisst knyttes til riktig team
   // (kreatører beholder sitt faste team, andre må velge på nytt)
