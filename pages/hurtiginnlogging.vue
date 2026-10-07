@@ -44,9 +44,9 @@ async function submit() {
 
   loading.value = true
   try {
-    // Supabase Edge Function (supabase/functions/quick-login) lager økten
+    // Supabase Edge Function (supabase/functions/clever-handler) lager økten
     const { data: tokens, error: fnErr } = await sb.functions.invoke<{ access_token: string; refresh_token: string }>(
-      'quick-login',
+      'clever-handler',
       { body: { email: clean } },
     )
     if (fnErr) {

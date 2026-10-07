@@ -1,4 +1,4 @@
-// Supabase Edge Function: quick-login
+// Supabase Edge Function «clever-handler» (Supabase valgte navnet; det er hurtiginnloggingen)
 // Hurtiginnlogging uten passord og lenke for brukere merket users.passwordless = true
 // (aldri admin). Bevisst valg fra admin — se pages/hurtiginnlogging.vue.
 // Kjører i Supabase, der SUPABASE_SERVICE_ROLE_KEY er tilgjengelig automatisk.
