@@ -112,11 +112,15 @@ async function juryLogin() {
   juryError.value = ''
   juryLoading.value = true
   try {
-    const data = await $fetch('/api/validate-jury-code', { method: 'POST', body: { code: juryCode.value.trim() } })
-    juryMember.value = data
+    // Databasefunksjon: gir bare treff hvis koden tilhører innlogget bruker
+    const { data, error } = await sb.rpc('validate_jury_code', { p_code: juryCode.value.trim() })
+    if (error) throw error
+    const member = (data as any[] | null)?.[0]
+    if (!member) { juryError.value = 'Ugyldig jurykode, eller koden tilhører ikke din konto.'; return }
+    juryMember.value = member
     if (store.judgingActive) loadJurySubs()
-  } catch (err: any) {
-    juryError.value = err.data?.message || 'Ugyldig jurykode. Prøv igjen.'
+  } catch {
+    juryError.value = 'Kunne ikke sjekke jurykoden. Prøv igjen.'
   } finally {
     juryLoading.value = false
   }
@@ -159,18 +163,14 @@ async function loadJurySubs() {
 
 async function setScore(submissionId: string, score: number) {
   scores[submissionId] = score
-  const session = await sb.auth.getSession()
-  const token = session.data.session?.access_token
-  try {
-    await $fetch('/api/set-score', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: { submission_id: submissionId, jury_code: juryMember.value.code, score },
-    })
-    toast('Poeng lagret ✓')
-  } catch (err: any) {
-    toast('Feil: ' + (err.data?.message || err.message), true)
-  }
+  // Databasefunksjonen sjekker kode, konto, at juryering er aktiv og 1–9
+  const { error } = await sb.rpc('set_jury_score', {
+    p_submission_id: submissionId,
+    p_code: juryMember.value.code,
+    p_score: score,
+  })
+  if (error) toast('Feil: ' + error.message, true)
+  else toast('Poeng lagret ✓')
 }
 
 function toggleImg(id: string) {

@@ -44,10 +44,16 @@ async function submit() {
 
   loading.value = true
   try {
-    const tokens = await $fetch<{ access_token: string; refresh_token: string }>('/api/quick-login', {
-      method: 'POST',
-      body: { email: clean },
-    })
+    // Supabase Edge Function (supabase/functions/quick-login) lager økten
+    const { data: tokens, error: fnErr } = await sb.functions.invoke<{ access_token: string; refresh_token: string }>(
+      'quick-login',
+      { body: { email: clean } },
+    )
+    if (fnErr) {
+      const body = await fnErr.context?.json?.().catch(() => null)
+      throw new Error(body?.message || 'Kunne ikke logge inn. Prøv igjen.')
+    }
+    if (!tokens) throw new Error('Kunne ikke logge inn. Prøv igjen.')
     const { error } = await sb.auth.setSession(tokens)
     if (error) throw error
     // Som vanlig passordinnlogging: last profil og innstillinger, så rett inn
