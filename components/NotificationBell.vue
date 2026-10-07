@@ -1,15 +1,12 @@
 <template>
   <div class="nb-wrap" ref="wrapRef">
-    <button class="nb-btn" @click="handleToggle" :title="hasNew ? 'Nye varslinger' : 'Varslinger'">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-      </svg>
+    <button ref="btnRef" class="tab-btn nb-btn" :class="{ active: open }" @click="handleToggle" :title="hasNew ? 'Nye varslinger' : 'Varslinger'">
+      Varsler
       <span v-if="hasNew" class="nb-dot" />
     </button>
 
-    <Transition name="nb-fade">
-      <div v-if="open" class="nb-panel">
+    <!-- Nedtrekksmeny: position:fixed så den ikke klippes av verktøylinja -->
+    <div v-if="open" class="nb-panel" :style="panelPos">
         <div class="nb-head">Varslinger</div>
 
         <!-- Deadline / juryering info -->
@@ -39,8 +36,7 @@
           </div>
         </template>
         <div v-else-if="!loading" class="nb-empty">Ingen aktivitet ennå</div>
-      </div>
-    </Transition>
+    </div>
   </div>
 </template>
 
@@ -51,6 +47,8 @@ import { timeAgo } from '~/utils/avatar'
 const store = useAppStore()
 const sb = useSupabaseClient()
 const wrapRef = ref<HTMLElement | null>(null)
+const btnRef = ref<HTMLElement | null>(null)
+const panelPos = ref<Record<string, string>>({})
 const open = ref(false)
 const loading = ref(false)
 const hasNew = ref(false)
@@ -88,6 +86,9 @@ function handleClickOutside(e: MouseEvent) {
 async function handleToggle() {
   open.value = !open.value
   if (open.value) {
+    // Plasser menyen rett under knappen, høyrejustert mot den
+    const r = btnRef.value?.getBoundingClientRect()
+    if (r) panelPos.value = { top: `${Math.round(r.bottom)}px`, right: `${Math.max(4, Math.round(window.innerWidth - r.right))}px` }
     await loadItems()
     markRead()
   }
@@ -152,74 +153,30 @@ async function loadItems() {
 </script>
 
 <style scoped>
-.nb-wrap { position: relative; }
+.nb-wrap { position: relative; flex-shrink: 0; }
 
-/* Win98: liten grå knapp i tittellinja + nedtrekksvindu */
-.nb-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: #c0c0c0;
-  border: none;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  color: #000;
-  cursor: pointer;
-}
-.nb-btn:active { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
+/* Liten rød firkant = nye varsler */
+.nb-dot { display: inline-block; width: 6px; height: 6px; margin-left: 3px; background: #f00; box-shadow: inset -1px -1px #800000; }
 
-.nb-dot {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 7px;
-  height: 7px;
-  background: #ff0000;
-  border: 1px solid #800000;
-}
-
+/* Win98-meny: hevet panel, menypunkter markeres navy */
 .nb-panel {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  width: 310px;
-  background: #c0c0c0;
-  border: none;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-  padding: 3px;
-  z-index: 400;
-  max-height: 460px;
+  position: fixed;
+  width: 300px;
+  max-width: calc(100vw - 8px);
+  max-height: 60vh;
   overflow-y: auto;
+  z-index: 400;
+  background: #c0c0c0;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff;
+  padding: 3px;
 }
-
-.nb-head {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(90deg, #000080, #1084d0);
-  padding: 3px 6px;
-}
-
-.nb-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  padding: 6px 8px;
-  background: #fff;
-  border-bottom: 1px solid #dfdfdf;
-}
-.nb-item:last-child { border-bottom: none; }
-.nb-item:hover { background: #000080; }
-.nb-item:hover .nb-text, .nb-item:hover .nb-sub { color: #fff; }
+.nb-head { font-weight: 700; padding: 3px 6px 4px; border-bottom: 1px solid #808080; box-shadow: 0 1px 0 #fff; margin-bottom: 2px; }
+.nb-item { display: flex; align-items: flex-start; gap: 6px; padding: 3px 6px; }
+.nb-item:hover { background: #000080; color: #fff; }
+.nb-item:hover .nb-sub { color: #fff; }
 .nb-item.nb-unread .nb-text { font-weight: 700; }
-.nb-item.nb-system { background: #ffffe1; }
-
-.nb-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
-
-.nb-text { font-size: 12px; font-weight: 400; color: #000; line-height: 1.4; }
-.nb-sub { font-size: 11px; color: #404040; margin-top: 0.1rem; }
-
-.nb-loading, .nb-empty { padding: 1rem; text-align: center; font-size: 12px; color: #404040; background: #fff; }
+.nb-icon { flex-shrink: 0; width: 14px; }
+.nb-text { line-height: 13px; }
+.nb-sub { color: #404040; line-height: 13px; }
+.nb-loading, .nb-empty { padding: 6px; color: #404040; }
 </style>

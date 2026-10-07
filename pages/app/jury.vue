@@ -1,63 +1,65 @@
 <template>
   <div class="page-section">
     <div class="wrap">
-      <!-- Jury login -->
-      <div v-if="!juryMember" style="max-width:400px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.75rem">
-        <p class="eyebrow">Jury</p>
-        <h2 style="font-weight:900;font-size:1.5rem;letter-spacing:-0.02em;margin-bottom:0.35rem">Logg inn</h2>
-        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.25rem">Skriv inn jurykoden din.</p>
-        <div class="form-group">
-          <label class="form-label">Jurykode</label>
-          <input
-            v-model="juryCode"
-            type="text"
-            class="form-input"
-            placeholder="XXXXXX"
-            style="letter-spacing:0.14em;text-transform:uppercase;font-weight:600;font-size:1rem"
-            @keydown.enter="juryLogin"
-          />
+      <!-- Jury-innlogging: dialogboks -->
+      <div v-if="!juryMember" class="window jury-login">
+        <div class="title-bar">
+          <div class="title-bar-text"><span class="title-bar-caption">Jury - Logg inn</span></div>
         </div>
-        <p v-if="juryError" style="color:var(--coral);font-size:0.82rem;margin-bottom:0.75rem">{{ juryError }}</p>
-        <button class="btn" :disabled="juryLoading" @click="juryLogin">Gå til bedømmingen →</button>
+        <div class="window-body">
+          <p style="margin-bottom:8px">Skriv inn jurykoden din.</p>
+          <div class="form-group">
+            <label class="form-label" for="jury-code">Jurykode:</label>
+            <input
+              id="jury-code"
+              v-model="juryCode"
+              type="text"
+              class="form-input"
+              placeholder="XXXXXX"
+              @keydown.enter="juryLogin"
+            />
+          </div>
+          <p v-if="juryError" style="color:var(--coral);margin-bottom:8px">{{ juryError }}</p>
+          <div class="form-actions">
+            <button class="default" :disabled="juryLoading" @click="juryLogin">OK</button>
+          </div>
+        </div>
       </div>
 
       <!-- Jury panel -->
       <div v-else>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px">
           <div>
-            <p class="eyebrow">Juryering</p>
-            <h1 style="font-weight:900;font-size:1.8rem;letter-spacing:-0.02em">Bedøm bidragene</h1>
-            <p style="color:var(--muted);margin-top:0.3rem;font-size:0.85rem">Gi hvert bidrag 1–9 poeng.</p>
+            <h1>Bedøm bidragene</h1>
+            <p style="margin-top:2px">Gi hvert bidrag 1–9 poeng.</p>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:0.67rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">Innlogget som</div>
-            <div style="font-weight:800;font-size:0.92rem;margin-top:0.1rem">{{ juryMember.jury_name }}</div>
-            <button class="btn btn-outline btn-sm" style="margin-top:0.4rem" @click="juryLogout">Logg ut</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span>Innlogget som <strong>{{ juryMember.jury_name }}</strong></span>
+            <button @click="juryLogout">Logg ut</button>
           </div>
         </div>
 
         <div v-if="!store.judgingActive" class="judging-closed">
-          <div class="big">⏸</div>
           <h3>Juryeringen er ikke åpnet ennå</h3>
           <p>Vent til admin åpner runden.</p>
         </div>
 
         <div v-else>
           <div v-if="jurySubsLoading" class="loading">Laster bidrag…</div>
-          <div v-else style="display:flex;flex-direction:column;gap:1rem">
-            <div
+          <div v-else style="display:flex;flex-direction:column;gap:12px">
+            <fieldset
               v-for="item in jurySubs"
               :key="item.sub.id"
               class="jury-card"
               :class="{ scored: scores[item.sub.id] }"
             >
+              <legend>{{ item.sub.produksjon }}</legend>
               <div class="jury-card-head">
-                <div class="jury-card-title">{{ item.sub.produksjon }}</div>
+                <div class="jury-card-meta" style="margin:0">{{ item.sub.kunde }} · {{ item.teamName }}</div>
                 <span class="badge" :class="scores[item.sub.id] ? 'badge-done' : 'badge-pending'">
                   {{ scores[item.sub.id] ? `${scores[item.sub.id]} / 9` : 'Ikke vurdert' }}
                 </span>
               </div>
-              <div class="jury-card-meta">{{ item.sub.kunde }} · {{ item.teamName }}</div>
               <div
                 class="jury-screenshot"
                 :class="{ expanded: expandedImages.has(item.sub.id) }"
@@ -69,7 +71,7 @@
                 <div v-for="pt in item.postetekster" :key="pt.id" class="jury-card-content">{{ pt.content }}</div>
               </div>
               <div class="score-row">
-                <span class="score-label">Poeng</span>
+                <span class="score-label">Poeng:</span>
                 <div class="score-btns">
                   <button
                     v-for="n in 9"
@@ -80,7 +82,7 @@
                   >{{ n }}</button>
                 </div>
               </div>
-            </div>
+            </fieldset>
           </div>
         </div>
       </div>

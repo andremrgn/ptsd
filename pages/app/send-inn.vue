@@ -1,118 +1,132 @@
 <template>
   <div class="page-section">
     <div class="wrap-narrow">
-      <p class="eyebrow">Send inn</p>
-      <h1 class="display">Ny produksjon</h1>
-
-      <!-- Team card -->
+      <!-- Ditt team -->
       <div v-if="store.team" class="team-card">
+        <span class="section-title">Ditt team</span>
         <div class="team-card-photo">
-          <img :src="teamPhoto" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />
-          <button class="team-photo-edit" title="Bytt lagbilde" @click="teamPhotoInput?.click()">✎</button>
+          <img :src="teamPhoto" alt="" />
         </div>
         <div class="team-card-info">
           <div class="team-card-name">{{ store.team.name }}</div>
-          <div class="team-card-members">{{ teamMembers }}</div>
+          <div>{{ teamMembers }}</div>
         </div>
+        <button @click="teamPhotoInput?.click()">Endre bilde…</button>
         <input ref="teamPhotoInput" type="file" accept="image/*" style="display:none" @change="handleTeamPhoto" />
       </div>
 
-      <!-- Previous submissions -->
-      <div v-if="prevSubs.length" style="margin-bottom:1.5rem">
-        <div style="font-weight:700;font-size:0.85rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:0.75rem;opacity:.6">Sendte produksjoner</div>
-        <div v-for="s in prevSubs" :key="s.id" class="prod-card">
-          <img class="prod-thumb" :src="s.image_url" alt="" loading="lazy" decoding="async" />
-          <div class="prod-info">
-            <div class="prod-title">{{ s.produksjon }}</div>
-            <div v-if="s.teamName" class="prod-meta" style="font-weight:700;color:var(--navy)">{{ s.teamName }}</div>
-            <div class="prod-meta">{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer" style="color:var(--coral)">Se innlegg →</a><span v-else style="color:var(--muted)">ugyldig lenke</span></div>
-            <div v-if="s.postetekster && s.postetekster.length" class="prod-uttak-links">
-              <a v-for="(pt, i) in s.postetekster" :key="i" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                {{ pt.title ? 'Finn: ' + pt.title : (s.postetekster.length > 1 ? 'Finn uttak ' + (i + 1) : 'Finn uttaket på Meta') }}
-              </a>
+      <!-- Sendte produksjoner -->
+      <div v-if="prevSubs.length" class="groupbox" style="margin-bottom:12px">
+        <span class="section-title">Sendte produksjoner</span>
+        <div class="prod-list">
+          <div v-for="s in prevSubs" :key="s.id" class="prod-card">
+            <img class="prod-thumb" :src="s.image_url" alt="" loading="lazy" decoding="async" />
+            <div class="prod-info">
+              <div class="prod-title">{{ s.produksjon }}</div>
+              <div v-if="s.teamName">Team: {{ s.teamName }}</div>
+              <div>{{ s.kunde }} · <a v-if="safeUrl(s.link)" :href="safeUrl(s.link)!" target="_blank" rel="noopener noreferrer">Se innlegg</a><span v-else>ugyldig lenke</span></div>
+              <div v-if="s.postetekster && s.postetekster.length" class="prod-uttak-links">
+                <a v-for="(pt, i) in s.postetekster" :key="i" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
+                  {{ pt.title ? 'Finn: ' + pt.title : (s.postetekster.length > 1 ? 'Finn uttak ' + (i + 1) : 'Finn uttaket på Meta') }}…
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Submit form -->
-      <div v-if="!submitted">
-        <div class="form-card">
-          <!-- Team-velger for rådgivere/prosjektledere uten fast team -->
-          <div v-if="!hasFixedTeam" class="form-group">
-            <label class="form-label">Hvilket team skrev postetekstene? <span style="color:var(--coral)">*</span></label>
-            <select v-model="selectedTeamId" class="form-input">
-              <option value="" disabled>Velg team…</option>
-              <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
-            </select>
-          </div>
+      <div v-if="!submitted" class="groupbox">
+        <span class="section-title">Ny produksjon</span>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Kunde</label>
-              <input v-model="form.kunde" type="text" class="form-input" placeholder="Kundenavn" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Produksjonsnavn</label>
-              <input v-model="form.produksjon" type="text" class="form-input" placeholder="Navn på produksjonen" />
-            </div>
-          </div>
+        <!-- Team-velger for rådgivere/prosjektledere uten fast team -->
+        <div v-if="!hasFixedTeam" class="form-group">
+          <label class="form-label" for="si-team">Team som skrev postetekstene: <span style="color:var(--coral)">*</span></label>
+          <select id="si-team" v-model="selectedTeamId" class="form-input">
+            <option value="" disabled>Velg team…</option>
+            <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+          </select>
+        </div>
 
+        <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Skjermbilde <span style="color:var(--coral)">*</span></label>
-            <div
-              class="dropzone"
-              :class="{ 'drag-over': dragging, 'has-image': previewUrl }"
-              @click="imageInput?.click()"
-              @dragover.prevent="dragging = true"
-              @dragleave="dragging = false"
-              @drop="handleDrop"
-            >
-              <div v-if="!previewUrl" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:#888;cursor:pointer">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>Dra hit eller klikk for å laste opp</span>
-              </div>
-              <img v-else :src="previewUrl" style="max-height:200px;border-radius:6px;object-fit:contain;margin:0 auto" alt="" />
-            </div>
-            <input ref="imageInput" type="file" accept="image/*" style="display:none" @change="handleImageSelect" />
+            <label class="form-label" for="si-kunde">Kunde:</label>
+            <input id="si-kunde" v-model="form.kunde" type="text" class="form-input" placeholder="Kundenavn" />
           </div>
-
           <div class="form-group">
-            <label class="form-label">Link til innleggene <span style="color:var(--coral)">*</span></label>
-            <input v-model="form.link" type="url" class="form-input" placeholder="https://…" />
+            <label class="form-label" for="si-prod">Produksjonsnavn:</label>
+            <input id="si-prod" v-model="form.produksjon" type="text" class="form-input" placeholder="Navn på produksjonen" />
           </div>
+        </div>
 
-          <div class="form-group">
-            <label class="form-label">Postetekster <span style="color:var(--coral)">*</span></label>
-            <div v-for="(pt, i) in postetekster" :key="i" class="postetekst-item">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
-                <span style="font-size:0.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6">Innlegg {{ i + 1 }}</span>
-                <button v-if="i > 0" class="postetekst-remove" @click="postetekster.splice(i, 1)">✕</button>
-              </div>
-              <input v-model="pt.title" type="text" class="form-input" placeholder="Navn på uttaket (valgfritt)" style="margin-bottom:0.4rem" />
-              <textarea v-model="pt.content" class="form-input form-textarea" placeholder="Skriv posteteksten ordrett, slik den står i annonsen…" rows="4" />
-              <a v-if="pt.content.trim()" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link" style="margin-top:0.5rem">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Finn på Meta
-              </a>
+        <div class="form-group">
+          <span class="form-label">Skjermbilde: <span style="color:var(--coral)">*</span></span>
+          <div
+            class="dropzone"
+            :class="{ 'drag-over': dragging, 'has-image': previewUrl }"
+            @click="imageInput?.click()"
+            @dragover.prevent="dragging = true"
+            @dragleave="dragging = false"
+            @drop="handleDrop"
+          >
+            <template v-if="!previewUrl">
+              <span>Dra et skjermbilde hit, eller</span>
+              <button type="button" @click.stop="imageInput?.click()">Bla gjennom…</button>
+            </template>
+            <img v-else :src="previewUrl" alt="" />
+          </div>
+          <input ref="imageInput" type="file" accept="image/*" style="display:none" @change="handleImageSelect" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="si-link">Link til innleggene: <span style="color:var(--coral)">*</span></label>
+          <input id="si-link" v-model="form.link" type="url" class="form-input" placeholder="https://…" />
+        </div>
+
+        <div class="form-group">
+          <span class="form-label">Postetekster: <span style="color:var(--coral)">*</span></span>
+          <div v-for="(pt, i) in postetekster" :key="i" class="postetekst-item">
+            <span class="postetekst-head">Innlegg {{ i + 1 }}</span>
+            <label class="form-label" :for="`si-pt-title-${i}`">Navn på uttaket (valgfritt):</label>
+            <input :id="`si-pt-title-${i}`" v-model="pt.title" type="text" class="form-input" />
+            <label class="form-label" :for="`si-pt-${i}`" style="margin-top:6px">Postetekst (ordrett, slik den står i annonsen):</label>
+            <textarea :id="`si-pt-${i}`" v-model="pt.content" class="form-input form-textarea" rows="4" />
+            <div class="postetekst-actions">
+              <a v-if="pt.content.trim()" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">Finn på Meta…</a>
+              <button v-if="i > 0" class="postetekst-remove" @click="postetekster.splice(i, 1)">Fjern</button>
             </div>
-            <button class="btn btn-outline btn-sm" style="margin-top:0.75rem" @click="postetekster.push({ title: '', content: '' })">+ Legg til tekst</button>
           </div>
+          <button @click="postetekster.push({ title: '', content: '' })">Legg til innlegg</button>
+        </div>
 
-          <button class="btn" :disabled="submitting" @click="submitEntry">
-            {{ submitting ? 'Sender…' : 'Send inn produksjon →' }}
+        <div class="form-actions">
+          <button class="default" :disabled="submitting" @click="submitEntry">
+            {{ submitting ? 'Sender…' : 'Send inn' }}
           </button>
         </div>
       </div>
 
-      <!-- Success state -->
-      <div v-else class="success-block">
-        <h2>Sendt inn! 🎉</h2>
-        <p>{{ successMsg }}</p>
-        <button class="btn btn-outline" style="margin-top:1rem;border-color:rgba(255,225,198,0.3);color:var(--cream)" @click="resetForm">
-          Send inn ny produksjon
-        </button>
+      <!-- Bekreftelse: Win98-meldingsboks -->
+      <div v-else class="window msgbox">
+        <div class="title-bar">
+          <div class="title-bar-text"><span class="title-bar-caption">Sølvposten</span></div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" @click="resetForm"></button>
+          </div>
+        </div>
+        <div class="msgbox-body">
+          <svg class="msgbox-icon" viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">
+            <path d="M7 2h18v1h2v1h1v1h1v2h1v12h-1v2h-1v1h-1v1h-2v1H15l-7 6v-6H7v-1H5v-1H4v-1H3v-2H2V7h1V5h1V4h1V3h2z" fill="#fff" stroke="#000" />
+            <rect x="15" y="6" width="3" height="3" fill="#00f" />
+            <rect x="14" y="11" width="4" height="2" fill="#00f" />
+            <rect x="15" y="11" width="3" height="9" fill="#00f" />
+            <rect x="13" y="19" width="7" height="2" fill="#00f" />
+          </svg>
+          <p class="msgbox-text"><strong>Sendt inn!</strong><br>{{ successMsg }}</p>
+        </div>
+        <div class="msgbox-buttons">
+          <button class="default" @click="resetForm">OK</button>
+        </div>
       </div>
     </div>
   </div>

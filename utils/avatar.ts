@@ -33,7 +33,8 @@ export function avatarUrl(name: string, size = 40, seed?: string): string {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${size / 2}" fill="${color}"/><text x="${size / 2}" y="${size * 0.64}" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="${size * 0.38}" fill="white">${initials}</text></svg>`
+  // Firkantet «ikon» (Win98 har ingen runde bilder)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" fill="${color}"/><text x="${size / 2}" y="${size * 0.66}" text-anchor="middle" font-family="Tahoma,Arial,sans-serif" font-weight="700" font-size="${size * 0.42}" fill="white">${initials}</text></svg>`
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 

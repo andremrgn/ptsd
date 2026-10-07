@@ -1,10 +1,15 @@
 <template>
   <div>
     <div class="drawer-overlay" :class="{ open: drawerStore.open }" @click="drawerStore.open = false" />
-    <div class="drawer" :class="{ open: drawerStore.open }">
-      <div class="drawer-head">
-        <h2>Din profil</h2>
-        <button class="drawer-x" @click="drawerStore.open = false">✕</button>
+    <!-- «Egenskaper»-dialog, som i Win98 -->
+    <div class="drawer window" :class="{ open: drawerStore.open }" role="dialog" aria-label="Din profil">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <span class="title-bar-caption">Egenskaper for {{ user?.nickname || user?.full_name || 'profil' }}</span>
+        </div>
+        <div class="title-bar-controls">
+          <button aria-label="Close" title="Lukk" @click="drawerStore.open = false"></button>
+        </div>
       </div>
       <div class="drawer-body">
         <div v-if="!user" class="loading">Laster…</div>
@@ -13,61 +18,75 @@
           <div class="drawer-profile">
             <div class="drawer-photo-wrap" @click="profileInput?.click()" title="Endre profilbilde">
               <img :src="profileSrc" alt="" />
-              <div class="drawer-photo-overlay">✎</div>
             </div>
-            <div>
-              <div class="drawer-profile-name">{{ user.nickname || user.full_name }}</div>
-              <div class="drawer-profile-role">{{ roleLabel }}</div>
+            <div style="flex:1;min-width:0">
+              <div class="drawer-profile-name">{{ user.full_name }}</div>
+              <div>{{ roleLabel }}</div>
             </div>
+            <button @click="profileInput?.click()">Endre bilde…</button>
           </div>
           <input ref="profileInput" type="file" accept="image/*" style="display:none" @change="handleProfilePhoto" />
 
           <!-- Kallenavn og sitat -->
           <div class="drawer-section">
-            <label class="drawer-edit-label">Kallenavn</label>
-            <input v-model="nickname" class="drawer-edit-input" type="text" maxlength="30" :placeholder="user.full_name" />
-            <label class="drawer-edit-label" style="margin-top:0.6rem">Favorittsitat</label>
-            <textarea v-model="quote" class="drawer-edit-input" rows="2" placeholder="Et godt sitat…" />
-            <button class="drawer-save-btn" @click="saveProfile">Lagre profil</button>
-            <button class="drawer-link-btn" @click="showPwForm = !showPwForm">
-              {{ showPwForm ? '↑ Avbryt passordbytte' : 'Endre passord' }}
-            </button>
+            <span class="drawer-section-title">Profil</span>
+            <label class="drawer-edit-label" for="pd-nick">Kallenavn:</label>
+            <input id="pd-nick" v-model="nickname" class="drawer-edit-input" type="text" maxlength="30" :placeholder="user.full_name" />
+            <label class="drawer-edit-label" for="pd-quote">Favorittsitat:</label>
+            <textarea id="pd-quote" v-model="quote" class="drawer-edit-input" rows="2" placeholder="Et godt sitat…" />
+            <div class="drawer-buttons" style="margin-top:6px">
+              <button @click="saveProfile">Lagre</button>
+            </div>
+          </div>
+
+          <!-- Passord -->
+          <div class="drawer-section">
+            <span class="drawer-section-title">Passord</span>
             <template v-if="showPwForm">
-              <label class="drawer-edit-label" style="margin-top:0.75rem">Nytt passord</label>
-              <input v-model="newPw" class="drawer-edit-input" type="password" placeholder="Minst 8 tegn" autocomplete="new-password" />
-              <label class="drawer-edit-label" style="margin-top:0.5rem">Bekreft passord</label>
-              <input v-model="confirmPw" class="drawer-edit-input" type="password" placeholder="Gjenta passordet" autocomplete="new-password" />
-              <p v-if="pwError" style="color:var(--coral);font-size:0.8rem;margin:0.4rem 0 0.1rem">{{ pwError }}</p>
-              <button class="drawer-save-btn" style="margin-top:0.5rem" :disabled="pwLoading" @click="changePassword">
-                {{ pwLoading ? 'Lagrer…' : 'Lagre nytt passord' }}
-              </button>
+              <label class="drawer-edit-label" for="pd-pw1">Nytt passord:</label>
+              <input id="pd-pw1" v-model="newPw" class="drawer-edit-input" type="password" placeholder="Minst 8 tegn" autocomplete="new-password" />
+              <label class="drawer-edit-label" for="pd-pw2">Bekreft passord:</label>
+              <input id="pd-pw2" v-model="confirmPw" class="drawer-edit-input" type="password" placeholder="Gjenta passordet" autocomplete="new-password" />
+              <p v-if="pwError" style="color:var(--coral);margin-top:4px">{{ pwError }}</p>
+              <div class="drawer-buttons" style="margin-top:6px">
+                <button :disabled="pwLoading" @click="changePassword">{{ pwLoading ? 'Lagrer…' : 'OK' }}</button>
+                <button @click="showPwForm = false">Avbryt</button>
+              </div>
             </template>
+            <div v-else class="drawer-buttons" style="justify-content:flex-start">
+              <button @click="showPwForm = true">Endre passord…</button>
+            </div>
           </div>
 
           <!-- Teamets bilde -->
           <div v-if="store.isParticipant && store.team" class="drawer-section">
-            <div class="drawer-section-title">Teamets bilde</div>
+            <span class="drawer-section-title">Teamets bilde</span>
             <div class="drawer-team-photo-row">
               <div class="drawer-photo-wrap" @click="teamInput?.click()" title="Endre teamets bilde">
                 <img :src="teamSrc" alt="" />
-                <div class="drawer-photo-overlay">✎</div>
               </div>
-              <span class="drawer-team-photo-hint">Begge på teamet kan endre dette bildet.</span>
+              <span style="flex:1">Begge på teamet kan endre dette bildet.</span>
+              <button @click="teamInput?.click()">Endre…</button>
             </div>
             <input ref="teamInput" type="file" accept="image/*" style="display:none" @change="handleTeamPhoto" />
           </div>
 
           <!-- Juryering — vises bare når aktiv -->
           <div v-if="store.judgingActive" class="drawer-section">
-            <div class="drawer-section-title">Kampanje</div>
+            <span class="drawer-section-title">Kampanje</span>
             <div class="drawer-row">
-              <span class="drawer-row-lbl">Juryering</span>
-              <span class="drawer-row-val" style="color:#22c55e">Aktiv</span>
+              <span>Juryering:</span>
+              <strong>Aktiv</strong>
             </div>
           </div>
-
-          <button v-if="user.is_admin" class="drawer-admin-btn" @click="openAdmin">Admin-panel →</button>
         </template>
+      </div>
+      <div class="drawer-footer">
+        <button @click="logout">Logg ut</button>
+        <div class="drawer-buttons">
+          <button v-if="user?.is_admin" @click="openAdmin">Kontrollpanel…</button>
+          <button class="default" @click="drawerStore.open = false">OK</button>
+        </div>
       </div>
     </div>
   </div>
@@ -85,6 +104,7 @@ const store = useAppStore()
 const drawerStore = useDrawerStore()
 const sb = useSupabaseClient()
 const { toast } = useToast()
+const { logout } = useAuth()
 const router = useRouter()
 
 const user = computed(() => store.user)

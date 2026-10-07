@@ -1,14 +1,19 @@
 <template>
   <div class="page-welcome">
-    <div class="welcome-card">
-      <div class="welcome-logo">
-        <img src="/logo-full-white.webp" alt="Morgenstern" class="welcome-logo-img" />
+    <!-- Win98-dialog mens innloggingslenken sjekkes -->
+    <div class="window login-window">
+      <div class="title-bar">
+        <div class="title-bar-text"><span class="title-bar-caption">Sølvposten</span></div>
       </div>
-      <h1 class="welcome-title">Sølv<span class="coral">posten</span></h1>
-      <p class="welcome-subtitle">{{ statusMessage }}</p>
-      <button v-if="showLoginBtn" class="btn-welcome" style="margin-top:1.25rem" @click="router.push('/login')">
-        Til innlogging →
-      </button>
+      <div class="login-body">
+        <img src="/favicon.png" alt="" class="login-icon" />
+        <div class="login-main">
+          <p class="login-intro">{{ statusMessage }}</p>
+        </div>
+        <div v-if="showLoginBtn" class="login-buttons">
+          <button class="default" @click="router.push('/login')">OK</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

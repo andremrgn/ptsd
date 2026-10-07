@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@pinia/nuxt', '@nuxtjs/supabase'],
-  css: ['~/assets/css/main.css'],
+  // 98.css gir pikselriktige Win98-kontroller; main.css legger Sølvposten-oppsettet oppå
+  css: ['98.css/dist/98.css', '~/assets/css/main.css'],
   imports: {
     dirs: ['stores'],
   },

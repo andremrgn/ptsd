@@ -1,47 +1,53 @@
 <template>
   <div class="page-section">
-    <!-- Submission detail overlay -->
+    <!-- Bidragsvisning: et eget vindu med lukkeknapp -->
     <div v-if="selectedSub" class="wrap-narrow">
-      <button class="sub-detail-back" @click="closeSubmission()">← Tilbake</button>
-      <div v-if="subLoading" class="loading">Laster…</div>
-      <template v-else-if="subDetail">
-        <div class="sub-detail-header">
-          <img :src="subDetail.teamPhoto" alt="" />
-          <div>
-            <div class="sub-detail-team">{{ subDetail.teamName }}</div>
-            <div class="sub-detail-meta">{{ subDetail.sub.produksjon }} · {{ subDetail.sub.kunde }}</div>
+      <div class="window sub-window">
+        <div class="title-bar">
+          <div class="title-bar-text">
+            <img v-if="subDetail" :src="subDetail.teamPhoto" alt="" class="title-bar-icon" />
+            <span class="title-bar-caption">{{ subDetail ? `${subDetail.sub.produksjon} - ${subDetail.teamName}` : 'Åpner…' }}</span>
+          </div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" title="Lukk" @click="closeSubmission()"></button>
           </div>
         </div>
-        <img
-          :src="subDetail.sub.image_url"
-          class="sub-detail-screenshot"
-          :class="{ expanded: imgExpanded }"
-          alt=""
-          decoding="async"
-          @click="imgExpanded = !imgExpanded"
-        />
-        <a v-if="safeUrl(subDetail.sub.link)" :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link" style="margin-bottom:1.5rem">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Se innleggene på sosiale medier
-        </a>
-
-        <div class="sub-detail-tekster">
-          <div v-for="(pt, i) in subDetail.postetekster" :key="pt.id" class="sub-detail-tekst">
-            <div class="sub-detail-tekst-num">{{ pt.title || 'Innlegg ' + (i + 1) }}</div>
-            <div class="sub-detail-tekst-content">{{ pt.content }}</div>
-            <div class="sub-detail-tekst-links">
-              <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Se dette innlegget
-              </a>
-              <a v-if="pt.content" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Finn uttaket på Meta
-              </a>
+        <div class="window-body">
+          <button class="sub-detail-back" @click="closeSubmission()">&lt; Tilbake</button>
+          <div v-if="subLoading" class="loading">Laster…</div>
+          <template v-else-if="subDetail">
+            <div class="sub-detail-header">
+              <img :src="subDetail.teamPhoto" alt="" />
+              <div>
+                <div class="sub-detail-team">{{ subDetail.teamName }}</div>
+                <div>{{ subDetail.sub.produksjon }} · {{ subDetail.sub.kunde }}</div>
+              </div>
             </div>
-          </div>
+            <img
+              :src="subDetail.sub.image_url"
+              class="sub-detail-screenshot"
+              :class="{ expanded: imgExpanded }"
+              alt=""
+              decoding="async"
+              @click="imgExpanded = !imgExpanded"
+            />
+            <div v-if="safeUrl(subDetail.sub.link)" class="sub-detail-links">
+              <a :href="safeUrl(subDetail.sub.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">Se innleggene på sosiale medier…</a>
+            </div>
+
+            <div class="sub-detail-tekster">
+              <fieldset v-for="(pt, i) in subDetail.postetekster" :key="pt.id" class="sub-detail-tekst">
+                <legend>{{ pt.title || 'Innlegg ' + (i + 1) }}</legend>
+                <div class="sub-detail-tekst-content">{{ pt.content }}</div>
+                <div class="sub-detail-tekst-links">
+                  <a v-if="safeUrl(pt.link)" :href="safeUrl(pt.link)!" target="_blank" rel="noopener noreferrer" class="sub-detail-some-link">Se dette innlegget…</a>
+                  <a v-if="pt.content" :href="metaAdLibraryUrl(pt.content)" target="_blank" rel="noopener noreferrer" class="meta-lib-link">Finn uttaket på Meta…</a>
+                </div>
+              </fieldset>
+            </div>
+          </template>
         </div>
-      </template>
+      </div>
     </div>
 
     <!-- Main home view -->
@@ -50,108 +56,105 @@
         <div class="hjem-greeting">
           <p class="eyebrow">{{ roleLabel }}</p>
           <h1 class="display">Hei, {{ firstName }}!</h1>
-          <p v-if="quote" class="lead" style="font-style:italic;color:var(--coral)">{{ quote }}</p>
-          <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon →</NuxtLink>
+          <p v-if="quote" class="hjem-tip">{{ quote }}</p>
+          <NuxtLink v-if="store.isParticipant" to="/app/send-inn" class="hjem-cta">Send inn ny produksjon…</NuxtLink>
         </div>
-        <div v-if="deadlineCountdown !== null" class="deadline-card">
+        <fieldset v-if="deadlineCountdown !== null" class="deadline-card">
+          <legend>Innleveringsfrist</legend>
           <span class="deadline-num">{{ deadlineCountdown }}</span>
-          <div class="deadline-label">
-            <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
-            <span class="deadline-sub">til innleveringsfrist</span>
-          </div>
-        </div>
+          <span class="deadline-unit">{{ deadlineCountdown === 1 ? 'dag' : 'dager' }} igjen</span>
+        </fieldset>
       </div>
 
-      <div class="hjem-section">
-        <div class="hjem-section-heading">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-          Stillingsoversikt
-        </div>
+      <fieldset class="hjem-section">
+        <legend>Stillingsoversikt</legend>
         <div v-if="lbLoading" class="loading">Laster oversikt…</div>
-        <table v-else class="leaderboard">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Team</th>
-              <th>Antall innsendelser</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(row, i) in leaderboard"
-              :key="row.team.id"
-              :class="{ 'my-team': row.team.id === store.user?.team_id }"
-            >
-              <td>
-                <span class="lb-rank" :class="['gold','silver','bronze'][i]">{{ i + 1 }}</span>
-              </td>
-              <td>
-                <div class="lb-team">
-                  <img class="lb-avatar" :src="row.teamPhoto" alt="" />
-                  <span>
-                    {{ row.team.name }}
-                    <span v-if="row.team.id === store.user?.team_id" class="lb-myteam-badge" style="font-size:.7rem;background:var(--coral);color:white;padding:1px 6px;border-radius:10px;margin-left:4px;white-space:nowrap">Ditt team</span>
-                  </span>
-                  <span v-if="row.kudos > 0" class="lb-kudos-badge" :title="`${row.kudos} kudos`">
-                    👏<span class="lb-kudos-num">{{ row.kudos }}</span>
-                  </span>
-                </div>
-              </td>
-              <td>{{ row.subCount }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <div v-else class="sunken-panel lb-panel">
+          <table class="leaderboard">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th>Team</th>
+                <th class="col-num">Innsendelser</th>
+                <th class="col-num">Kudos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, i) in leaderboard"
+                :key="row.team.id"
+                :class="{ 'my-team': row.team.id === store.user?.team_id }"
+              >
+                <td class="col-num">{{ i + 1 }}</td>
+                <td>
+                  <div class="lb-team">
+                    <img class="lb-avatar" :src="row.teamPhoto" alt="" />
+                    <span>{{ row.team.name }}</span>
+                    <span v-if="row.team.id === store.user?.team_id" class="lb-myteam-badge">ditt team</span>
+                  </div>
+                </td>
+                <td class="col-num">{{ row.subCount }}</td>
+                <td class="col-num">{{ row.kudos || '' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
 
-      <div class="hjem-section feed-section">
-        <div class="hjem-section-heading">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          Siste innleveringer
-        </div>
+      <fieldset class="hjem-section feed-section">
+        <legend>Siste innleveringer</legend>
         <div v-if="feedLoading" class="loading">Laster…</div>
-        <p v-else-if="!feed.length" style="opacity:.4;font-size:.9rem">Ingen innleveringer ennå.</p>
-        <div v-for="item in feed" :key="item.sub.id" class="feed-card" :id="`feed-${item.sub.id}`">
-          <div class="feed-card-top" @click="openSubmission(item.sub.id)">
-            <img class="feed-team-avatar" :src="item.teamPhoto" alt="" />
-            <div>
-              <div class="feed-team-name">{{ item.teamName }}</div>
-              <div class="feed-prod-name">{{ item.sub.produksjon }} · {{ item.sub.kunde }}</div>
+        <p v-else-if="!feed.length" class="loading">Ingen innleveringer ennå.</p>
+        <!-- Hver innlevering er et lite vindu: grå tittellinje, blir blå når du er over -->
+        <div v-for="item in feed" :key="item.sub.id" class="window feed-card" :id="`feed-${item.sub.id}`">
+          <div class="title-bar inactive" @click="openSubmission(item.sub.id)">
+            <div class="title-bar-text">
+              <img class="title-bar-icon" :src="item.teamPhoto" alt="" />
+              <span class="title-bar-caption">{{ item.sub.produksjon }} - {{ item.teamName }}</span>
             </div>
-            <div class="feed-time">{{ timeAgo(item.sub.submitted_at) }}</div>
+            <div class="title-bar-controls">
+              <button aria-label="Maximize" title="Åpne" @click.stop="openSubmission(item.sub.id)"></button>
+            </div>
           </div>
-          <img
-            class="feed-screenshot"
-            :class="{ expanded: expandedImages.has(item.sub.id) }"
-            :src="item.sub.image_url"
-            alt=""
-            loading="lazy"
-            decoding="async"
-            @click="toggleImg(item.sub.id)"
-          />
-          <div class="feed-card-footer">
-            <span class="feed-pt-count">{{ item.ptCount }} postetekst{{ item.ptCount !== 1 ? 'er' : '' }}</span>
-            <button
-              class="kudos-btn"
-              :class="{ given: item.myKudos }"
-              :disabled="item.isMyTeam || isBusy(item.sub.id)"
-              :title="item.isMyTeam ? 'Ikke til eget team' : ''"
-              @click="toggleKudos(item)"
-            >
-              👏 <span class="kudos-count">{{ item.kudosCount }}</span>
-            </button>
-            <button
-              class="kudos-btn dislike-btn"
-              :class="{ given: item.myDislike }"
-              :disabled="item.isMyTeam || isBusy(item.sub.id)"
-              :title="item.isMyTeam ? 'Ikke til eget team' : ''"
-              @click="toggleDislike(item)"
-            >
-              👎 <span class="kudos-count">{{ item.dislikeCount }}</span>
-            </button>
-            <button class="feed-link" @click="openSubmission(item.sub.id)">Se innlegg →</button>
+          <div class="feed-body">
+            <div class="feed-meta">
+              <span>Kunde: {{ item.sub.kunde }}</span>
+              <span class="feed-time">{{ timeAgo(item.sub.submitted_at) }}</span>
+            </div>
+            <img
+              class="feed-screenshot"
+              :class="{ expanded: expandedImages.has(item.sub.id) }"
+              :src="item.sub.image_url"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              @click="toggleImg(item.sub.id)"
+            />
+            <div class="feed-card-footer">
+              <span class="feed-pt-count">{{ item.ptCount }} postetekst{{ item.ptCount !== 1 ? 'er' : '' }}</span>
+              <button
+                class="kudos-btn"
+                :class="{ given: item.myKudos }"
+                :disabled="item.isMyTeam || isBusy(item.sub.id)"
+                :title="item.isMyTeam ? 'Ikke til eget team' : 'Gi kudos'"
+                @click="toggleKudos(item)"
+              >
+                👏 <span class="kudos-count">{{ item.kudosCount }}</span>
+              </button>
+              <button
+                class="kudos-btn dislike-btn"
+                :class="{ given: item.myDislike }"
+                :disabled="item.isMyTeam || isBusy(item.sub.id)"
+                :title="item.isMyTeam ? 'Ikke til eget team' : 'Tommel ned'"
+                @click="toggleDislike(item)"
+              >
+                👎 <span class="kudos-count">{{ item.dislikeCount }}</span>
+              </button>
+              <button class="feed-link" @click="openSubmission(item.sub.id)">Se innlegg…</button>
+            </div>
           </div>
         </div>
-      </div>
+      </fieldset>
     </div>
   </div>
 </template>
@@ -435,98 +438,4 @@ onUnmounted(() => {
   window.removeEventListener('popstate', onPopState)
 })
 </script>
-
-<style scoped>
-.hjem-top {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 3rem;
-  padding-bottom: 2rem;
-}
-
-.hjem-greeting {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.hjem-greeting > * { margin: 0; }
-
-/* Win98-knapp (standardknapp med tykk ramme, som «OK» i en dialog) */
-.hjem-cta {
-  display: inline-block;
-  margin-top: 0.25rem;
-  background: #c0c0c0;
-  color: #000;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 7px 18px;
-  text-decoration: none;
-  outline: 1px solid #000;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
-}
-.hjem-cta:active { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
-
-/* Fristen som et lite LCD-aktig statusfelt */
-.deadline-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  flex-shrink: 0;
-  gap: 0.25rem;
-  background: #fff;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
-  padding: 0.75rem 1rem;
-}
-
-.deadline-num {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #000080;
-  line-height: 1;
-}
-
-.deadline-label {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.1rem;
-}
-
-.deadline-unit {
-  font-size: 13px;
-  font-weight: 700;
-  color: #000;
-}
-
-.deadline-sub {
-  font-size: 12px;
-  font-weight: 400;
-  color: #404040;
-}
-
-@media (max-width: 600px) {
-  .hjem-top {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-    padding-bottom: 1rem;
-  }
-  .deadline-card {
-    align-items: flex-start;
-  }
-  .deadline-label {
-    align-items: flex-start;
-  }
-  .deadline-num {
-    font-size: 2.75rem;
-  }
-  .hjem-cta {
-    font-size: 0.8rem;
-    padding: 0.55rem 1rem;
-  }
-}
-</style>
 

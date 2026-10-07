@@ -1,9 +1,6 @@
 <template>
   <div class="page-section">
     <div class="wrap">
-      <p class="eyebrow">Administrator</p>
-      <h1 style="font-weight:900;font-size:2rem;letter-spacing:-0.025em;margin-bottom:1.75rem">Kontrollpanel</h1>
-
       <div class="stats-row">
         <div class="stat"><div class="stat-num">{{ stats.subs }}</div><div class="stat-lbl">Bidrag</div></div>
         <div class="stat"><div class="stat-num">{{ stats.jury }}</div><div class="stat-lbl">Jury</div></div>
@@ -70,13 +67,13 @@
           </button>
         </div>
 
-        <div style="margin-top:1rem">
-          <div style="font-size:0.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.5;margin-bottom:0.6rem">Kalenderblokker</div>
-          <div class="add-row" style="margin-bottom:0.75rem">
+        <div class="groupbox" style="margin-top:14px">
+          <span class="section-title">Kalenderblokker</span>
+          <div class="add-row">
             <input v-model="newBlock.label" type="text" class="form-input" placeholder="Merkelapp (valgfri)" />
             <input v-model="newBlock.start" type="date" class="form-input" style="max-width:160px" />
             <input v-model="newBlock.end" type="date" class="form-input" style="max-width:160px" />
-            <button class="btn btn-sm" @click="addMailBlock">+ Legg til</button>
+            <button class="btn btn-sm" @click="addMailBlock">Legg til</button>
           </div>
           <div v-if="mailBlocks.length" class="table-wrap">
             <table class="data-table">
@@ -103,10 +100,10 @@
           <table class="data-table users-table">
             <tbody>
               <tr v-for="u in introCandidates" :key="u.email">
-                <td style="width:38px"><input type="checkbox" :value="u.email" v-model="introSelected" /></td>
-                <td>{{ u.full_name }}</td>
-                <td class="email-col" style="color:var(--muted);font-size:0.78rem">{{ u.email }}</td>
-                <td style="color:var(--muted);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase">{{ u.role }}</td>
+                <!-- 98.css tegner avkrysningsboksen via <label> rett etter inputen -->
+                <td><input :id="`intro-${u.email}`" type="checkbox" :value="u.email" v-model="introSelected" /><label :for="`intro-${u.email}`">{{ u.full_name }}</label></td>
+                <td class="email-col">{{ u.email }}</td>
+                <td>{{ u.role }}</td>
               </tr>
             </tbody>
           </table>
@@ -124,7 +121,7 @@
           <input v-model="newJuryName" type="text" class="form-input" placeholder="Navn" />
           <input v-model="newJuryEmail" type="email" class="form-input" placeholder="E-post" />
           <input v-model="newJuryCode" type="text" class="form-input" placeholder="Kode (auto)" style="max-width:155px" />
-          <button class="btn btn-sm" @click="addJuryCode">+ Legg til</button>
+          <button class="btn btn-sm" @click="addJuryCode">Legg til</button>
         </div>
         <div v-if="juryLoading" class="loading">Laster…</div>
         <div v-else class="table-wrap">
@@ -154,11 +151,11 @@
             <thead><tr><th>Navn</th><th class="email-col">E-post</th><th>Team</th><th></th></tr></thead>
             <tbody>
               <template v-for="group in usersByRole" :key="group.role">
-                <tr class="role-group-header" style="cursor:pointer" @click="toggleRoleGroup(group.role)">
-                  <td>{{ group.role }}</td>
+                <tr class="role-group-header" @click="toggleRoleGroup(group.role)">
+                  <td>{{ collapsedRoles.has(group.role) ? '+' : '-' }} {{ group.role }} ({{ group.users.length }})</td>
                   <td class="email-col"></td>
                   <td></td>
-                  <td style="text-align:right;font-size:0.65rem;opacity:0.5">{{ collapsedRoles.has(group.role) ? '▶' : '▼' }} {{ group.users.length }}</td>
+                  <td></td>
                 </tr>
                 <template v-if="!collapsedRoles.has(group.role)">
                   <tr v-for="u in group.users" :key="u.email">

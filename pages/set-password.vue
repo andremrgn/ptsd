@@ -1,40 +1,28 @@
 <template>
   <div class="page-welcome">
-    <div class="welcome-card" style="max-width:400px">
-      <div class="welcome-logo">
-        <img src="/logo-full-white.webp" alt="Morgenstern" class="welcome-logo-img" />
+    <!-- Win98-dialog: «Sett passord» -->
+    <div class="window login-window">
+      <div class="title-bar">
+        <div class="title-bar-text"><span class="title-bar-caption">Sett passord</span></div>
       </div>
-      <h1 class="welcome-title" style="font-size:1.6rem;margin-bottom:0.4rem">Sett passord</h1>
-      <p class="welcome-subtitle" style="margin-bottom:1.5rem">Velg et passord for kontoen din.</p>
-
-      <div class="form-group">
-        <label class="form-label">Nytt passord</label>
-        <input
-          v-model="password"
-          type="password"
-          class="form-input"
-          placeholder="Minst 8 tegn"
-          autocomplete="new-password"
-          @keydown.enter="submit"
-        />
+      <div class="login-body">
+        <img src="/favicon.png" alt="" class="login-icon" />
+        <div class="login-main">
+          <p class="login-intro">Velg et passord for kontoen din. Det må være minst 8 tegn.</p>
+          <div class="login-field">
+            <label for="sp-pw1">Nytt passord:</label>
+            <input id="sp-pw1" v-model="password" type="password" autocomplete="new-password" @keydown.enter="submit" />
+          </div>
+          <div class="login-field">
+            <label for="sp-pw2">Bekreft:</label>
+            <input id="sp-pw2" v-model="confirmPw" type="password" autocomplete="new-password" @keydown.enter="submit" />
+          </div>
+          <p v-if="error" class="login-error">{{ error }}</p>
+        </div>
+        <div class="login-buttons">
+          <button class="default" :disabled="loading" @click="submit">{{ loading ? 'Lagrer…' : 'OK' }}</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Bekreft passord</label>
-        <input
-          v-model="confirmPw"
-          type="password"
-          class="form-input"
-          placeholder="Gjenta passordet"
-          autocomplete="new-password"
-          @keydown.enter="submit"
-        />
-      </div>
-
-      <p v-if="error" style="color:var(--coral);font-size:0.82rem;margin-bottom:0.75rem">{{ error }}</p>
-
-      <button class="btn" :disabled="loading" style="width:100%" @click="submit">
-        {{ loading ? 'Lagrer…' : 'Lagre passord og fortsett →' }}
-      </button>
     </div>
   </div>
 </template>

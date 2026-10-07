@@ -1,37 +1,60 @@
 <template>
-  <header id="app-header">
-    <NuxtLink to="/app/hjem" class="app-logo">
-      <img src="/logo-mark-white.png" alt="" class="app-logo-mark" />
-      <img src="/logo-wordmark-white.webp" alt="Morgenstern" class="app-logo-word" />
-    </NuxtLink>
-    <div class="app-header-right">
-      <button class="logout-btn" @click="logout">Logg ut</button>
-      <NotificationBell />
-      <button class="profile-btn" @click="drawerStore.open = true">
-        <img
-          :src="profileImg"
-          alt=""
-          style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block"
-        />
-      </button>
+  <header id="app-header" class="title-bar">
+    <div class="title-bar-text">
+      <img src="/logo-mark-white.png" alt="" class="title-bar-icon" />
+      <span class="title-bar-caption">{{ title }}</span>
+    </div>
+    <div class="title-bar-controls">
+      <button aria-label="Minimize" title="Minimer"></button>
+      <button
+        v-if="canFullscreen"
+        :aria-label="isFullscreen ? 'Restore' : 'Maximize'"
+        :title="isFullscreen ? 'Gjenopprett' : 'Maksimer (fullskjerm)'"
+        @click="toggleFullscreen"
+      ></button>
+      <button v-else aria-label="Maximize" disabled></button>
+      <button aria-label="Close" title="Lukk (logg ut)" @click="close"></button>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '~/stores/app'
-import { useDrawerStore } from '~/stores/drawer'
-import { avatarUrl } from '~/utils/avatar'
-
-const store = useAppStore()
-const drawerStore = useDrawerStore()
+const route = useRoute()
 const { logout } = useAuth()
 
-const profileImg = computed(() => {
-  const u = store.user
-  if (!u) return ''
-  if (store.team?.image_url && store.isParticipant) return store.team.image_url
-  if (u.image_url) return u.image_url
-  return avatarUrl(u.full_name, 32, u.email)
+// Tittellinja følger Win98-mønsteret «Dokument - Program»
+const PAGE_TITLES: Record<string, string> = {
+  '/app/hjem': 'Hjem',
+  '/app/send-inn': 'Send inn',
+  '/app/resultater': 'Resultater',
+  '/app/jury': 'Jury',
+  '/app/admin': 'Kontrollpanel',
+}
+const title = computed(() => {
+  const page = PAGE_TITLES[route.path]
+  return page ? `${page} - Sølvposten` : 'Sølvposten'
 })
+
+// Maksimer = nettleserens fullskjerm (der det støttes)
+const canFullscreen = ref(false)
+const isFullscreen = ref(false)
+function onFullscreenChange() { isFullscreen.value = !!document.fullscreenElement }
+
+onMounted(() => {
+  canFullscreen.value = !!document.fullscreenEnabled
+  document.addEventListener('fullscreenchange', onFullscreenChange)
+})
+onUnmounted(() => document.removeEventListener('fullscreenchange', onFullscreenChange))
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen()
+    else await document.documentElement.requestFullscreen()
+  } catch {}
+}
+
+// Lukk = avslutt programmet, dvs. logg ut
+function close() {
+  if (confirm('Vil du avslutte Sølvposten og logge ut?')) logout()
+}
 </script>
