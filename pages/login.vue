@@ -71,16 +71,7 @@
       </div>
       <div class="quick-body">
         <p>Er du Anders eller Sebastian?</p>
-        <div class="quick-options">
-          <div class="field-row">
-            <input id="quick-ja" v-model="quickAnswer" type="radio" name="quick" value="ja" />
-            <label for="quick-ja">Ja</label>
-          </div>
-          <div class="field-row">
-            <input id="quick-nei" v-model="quickAnswer" type="radio" name="quick" value="nei" />
-            <label for="quick-nei">Nei</label>
-          </div>
-        </div>
+        <button @click="router.push('/hurtiginnlogging')">Ja, det er jeg</button>
       </div>
     </div>
     </div>
@@ -98,15 +89,9 @@ const showMagicLink = ref(false)
 const magicLinkSent = ref(false)
 const showHelp = ref(false)
 const pwInput = ref<HTMLInputElement | null>(null)
-const quickAnswer = ref('')
 
 const { login, sendMagicLink } = useAuth()
 const router = useRouter()
-
-// «Ja» i boksen → egen side der passordløse bare skriver inn e-posten
-watch(quickAnswer, (svar) => {
-  if (svar === 'ja') router.push('/hurtiginnlogging')
-})
 
 function toggleMode() {
   showMagicLink.value = !showMagicLink.value
