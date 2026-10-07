@@ -133,7 +133,7 @@ button.tab-btn { color: transparent; text-shadow: 0 0 #000; }
 
 /* Innhold */
 .page-section { display: block; }
-.wrap, .wrap-narrow { max-width: 900px; padding: 10px 10px 16px; }
+.wrap, .wrap-narrow { max-width: 900px; margin: 0 auto; padding: 10px 10px 16px; }
 .eyebrow { color: #000; margin-bottom: 2px; }
 .lead { color: #000; line-height: 15px; max-width: 70ch; }
 .loading { padding: 8px; color: #000; }
