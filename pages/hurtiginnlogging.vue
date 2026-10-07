@@ -51,7 +51,8 @@ async function submit() {
     )
     if (fnErr) {
       const body = await fnErr.context?.json?.().catch(() => null)
-      throw new Error(body?.message || 'Kunne ikke logge inn. Prøv igjen.')
+      // Uten svar fra funksjonen er det oftest en gammel versjon av siden
+      throw new Error(body?.message || 'Fikk ikke kontakt med innloggingen. Last inn siden på nytt og prøv igjen.')
     }
     if (!tokens) throw new Error('Kunne ikke logge inn. Prøv igjen.')
     const { error } = await sb.auth.setSession(tokens)
