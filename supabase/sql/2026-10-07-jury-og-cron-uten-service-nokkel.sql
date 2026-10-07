@@ -2,6 +2,8 @@
 -- Flytter jury-sjekkene og automatisk juryeringsstart inn i databasen,
 -- så de ikke trenger Supabase service-nøkkelen på Vercel.
 
+create extension if not exists pg_cron with schema pg_catalog;
+
 -- 1) Jurykode: gir tilbake jurymedlemmet hvis koden tilhører innlogget bruker
 create or replace function public.validate_jury_code(p_code text)
 returns setof public.jury_codes
