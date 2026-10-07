@@ -1,5 +1,6 @@
 <template>
   <div class="page-welcome">
+    <div class="login-stack">
     <!-- Win98-innloggingsdialog («Velkommen til Windows») -->
     <div class="window login-window">
       <div class="title-bar">
@@ -62,6 +63,27 @@
         </div>
       </template>
     </div>
+
+    <!-- Egen boks for de passordløse: Ja → egen innloggingsside med bare e-post -->
+    <div class="window login-window quick-box">
+      <div class="title-bar">
+        <div class="title-bar-text"><span class="title-bar-caption">Logg inn uten passord</span></div>
+      </div>
+      <div class="quick-body">
+        <p>Er du Anders eller Sebastian?</p>
+        <div class="quick-options">
+          <div class="field-row">
+            <input id="quick-ja" v-model="quickAnswer" type="radio" name="quick" value="ja" />
+            <label for="quick-ja">Ja</label>
+          </div>
+          <div class="field-row">
+            <input id="quick-nei" v-model="quickAnswer" type="radio" name="quick" value="nei" />
+            <label for="quick-nei">Nei</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
   </div>
 </template>
 
@@ -76,9 +98,15 @@ const showMagicLink = ref(false)
 const magicLinkSent = ref(false)
 const showHelp = ref(false)
 const pwInput = ref<HTMLInputElement | null>(null)
+const quickAnswer = ref('')
 
 const { login, sendMagicLink } = useAuth()
 const router = useRouter()
+
+// «Ja» i boksen → egen side der passordløse bare skriver inn e-posten
+watch(quickAnswer, (svar) => {
+  if (svar === 'ja') router.push('/hurtiginnlogging')
+})
 
 function toggleMode() {
   showMagicLink.value = !showMagicLink.value

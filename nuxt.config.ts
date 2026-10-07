@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/login', '/confirm', '/set-password'],
+      exclude: ['/login', '/confirm', '/set-password', '/hurtiginnlogging'],
     },
     cookieOptions: {
       maxAge: 60 * 60 * 24 * 30, // 30 dager
