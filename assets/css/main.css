@@ -194,8 +194,11 @@ fieldset + fieldset, .hjem-section { margin-top: 12px; }
 .feed-screenshot.expanded { max-height: none; cursor: zoom-out; }
 .feed-card-footer { display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
 .feed-pt-count { flex: 1; min-width: 80px; }
-.kudos-btn { min-width: 50px; padding: 0 8px; }
+.kudos-btn { min-width: 50px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 .kudos-btn.given { box-shadow: var(--bevel-press); background-image: var(--dither); }
+.kudos-btn:not(:disabled):active .pixel-icon { transform: translate(1px, 1px); }
+.kudos-btn:disabled .pixel-icon { opacity: 0.45; }
+.pixel-icon { display: inline-block; flex-shrink: 0; vertical-align: middle; }
 .feed-link { min-width: 75px; }
 
 /* Bidragsvisning: et eget vindu med lukkeknapp */

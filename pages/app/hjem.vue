@@ -139,7 +139,7 @@
                 :title="item.isMyTeam ? 'Ikke til eget team' : 'Gi kudos'"
                 @click="toggleKudos(item)"
               >
-                👏 <span class="kudos-count">{{ item.kudosCount }}</span>
+                <PixelIcon name="thumbsUp" /> <span class="kudos-count">{{ item.kudosCount }}</span>
               </button>
               <button
                 class="kudos-btn dislike-btn"
@@ -148,7 +148,7 @@
                 :title="item.isMyTeam ? 'Ikke til eget team' : 'Tommel ned'"
                 @click="toggleDislike(item)"
               >
-                👎 <span class="kudos-count">{{ item.dislikeCount }}</span>
+                <PixelIcon name="thumbsDown" /> <span class="kudos-count">{{ item.dislikeCount }}</span>
               </button>
               <button class="feed-link" @click="openSubmission(item.sub.id)">Se innlegg…</button>
             </div>

@@ -28,7 +28,7 @@
         <div v-if="loading" class="nb-loading">Laster…</div>
         <template v-else-if="items.length">
           <div v-for="item in items" :key="item.key" class="nb-item" :class="{ 'nb-unread': item.isUnread }">
-            <span class="nb-icon">{{ item.icon }}</span>
+            <span class="nb-icon"><PixelIcon :name="item.icon" /></span>
             <div>
               <div class="nb-text">{{ item.text }}</div>
               <div v-if="item.ago" class="nb-sub">{{ item.ago }}</div>
@@ -131,7 +131,7 @@ async function loadItems() {
   const all = [
     ...(kudos || []).map((k: any) => ({
       key: `k-${k.submission_id}-${k.from_email}`,
-      icon: '👏',
+      icon: 'thumbsUp',
       text: `${k.from_email.split('@')[0]} ga kudos for ${subName[k.submission_id] || 'en innlevering'}`,
       ago: k.created_at ? timeAgo(k.created_at) : null,
       created_at: k.created_at,
@@ -139,7 +139,7 @@ async function loadItems() {
     })),
     ...(dislikes || []).map((d: any) => ({
       key: `d-${d.submission_id}-${d.from_email}`,
-      icon: '👎',
+      icon: 'thumbsDown',
       text: `${d.from_email.split('@')[0]} likte ikke ${subName[d.submission_id] || 'en innlevering'}`,
       ago: d.created_at ? timeAgo(d.created_at) : null,
       created_at: d.created_at,
@@ -175,7 +175,7 @@ async function loadItems() {
 .nb-item:hover { background: #000080; color: #fff; }
 .nb-item:hover .nb-sub { color: #fff; }
 .nb-item.nb-unread .nb-text { font-weight: 700; }
-.nb-icon { flex-shrink: 0; width: 14px; }
+.nb-icon { flex-shrink: 0; width: 16px; }
 .nb-text { line-height: 13px; }
 .nb-sub { color: #404040; line-height: 13px; }
 .nb-loading, .nb-empty { padding: 6px; color: #404040; }
