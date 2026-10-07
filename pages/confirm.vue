@@ -51,8 +51,8 @@ watch(session, async (s) => {
     await store.loadTeam()
     handled = true
     if (fallbackTimer) clearTimeout(fallbackTimer)
-    // Bruk DB-verdien (kilde til sannhet), ikke JWT-metadata som henger etter updateUser
-    router.push(store.user?.password_set ? '/app/hjem' : '/set-password')
+    // Bruk DB-verdiene (kilde til sannhet), ikke JWT-metadata som henger etter updateUser
+    router.push(store.needsPassword ? '/set-password' : '/app/hjem')
   } catch {
     fail('Noe gikk galt under innlogging. Be om en ny lenke og prøv igjen.')
   }

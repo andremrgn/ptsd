@@ -16,19 +16,19 @@
             <p class="login-intro">
               {{ showMagicLink
                 ? 'Skriv inn e-postadressen din, så sender vi deg en innloggingslenke.'
-                : 'Skriv inn @mrgn.no-adressen og passordet ditt for å logge på Sølvposten.' }}
+                : 'Skriv inn @mrgn.no-adressen din. Bruker du ikke passord, lar du feltet stå tomt og trykker OK — da får du en innloggingslenke på e-post.' }}
             </p>
             <div class="login-field">
               <label for="login-email">E-post:</label>
-              <input id="login-email" v-model="email" type="email" placeholder="deg@mrgn.no" autocomplete="username" @keydown.enter="submit" />
+              <input id="login-email" v-model="email" type="email" placeholder="deg@mrgn.no" autocomplete="username" @keydown.enter="onEmailEnter" />
             </div>
             <div v-if="!showMagicLink" class="login-field">
               <label for="login-pw">Passord:</label>
-              <input id="login-pw" v-model="password" type="password" autocomplete="current-password" @keydown.enter="doLogin" />
+              <input id="login-pw" ref="pwInput" v-model="password" type="password" autocomplete="current-password" @keydown.enter="submit" />
             </div>
             <p v-if="errorMsg" class="login-error">{{ errorMsg }}</p>
             <p v-if="showHelp" class="tooltip">
-              Første gang du logger inn, eller har du glemt passordet? Trykk «Send meg en lenke» nederst, så får du en innloggingslenke på e-post.
+              Uten passord: la passordfeltet stå tomt og trykk OK, så får du en innloggingslenke på e-post. Åpne lenken i samme nettleser.
             </p>
           </div>
           <div class="login-buttons">
@@ -75,6 +75,7 @@ const loading = ref(false)
 const showMagicLink = ref(false)
 const magicLinkSent = ref(false)
 const showHelp = ref(false)
+const pwInput = ref<HTMLInputElement | null>(null)
 
 const { login, sendMagicLink } = useAuth()
 const router = useRouter()
@@ -84,9 +85,16 @@ function toggleMode() {
   errorMsg.value = ''
 }
 
+// Tomt passord = logg inn med e-postlenke (for dem som ikke bruker passord)
 function submit() {
-  if (showMagicLink.value) doMagicLink()
+  if (showMagicLink.value || !password.value) doMagicLink()
   else doLogin()
+}
+
+// Enter i e-postfeltet hopper til passordfeltet, så ingen får lenke ved et uhell
+function onEmailEnter() {
+  if (showMagicLink.value) doMagicLink()
+  else pwInput.value?.focus()
 }
 
 function cancel() {

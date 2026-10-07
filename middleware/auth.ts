@@ -13,5 +13,5 @@ export default defineNuxtRouteMiddleware(async () => {
     await Promise.all([store.loadSettings(), store.loadTeam()])
   }
 
-  if (!store.user?.password_set) return navigateTo('/set-password')
+  if (store.needsPassword) return navigateTo('/set-password')
 })

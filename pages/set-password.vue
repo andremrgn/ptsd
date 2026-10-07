@@ -47,8 +47,8 @@ onMounted(() => {
     router.push('/login')
     return
   }
-  // Already set password — go straight in
-  if (store.user?.password_set) {
+  // Har allerede passord (eller er passordløs) — rett inn
+  if (store.user && !store.needsPassword) {
     router.push('/app/hjem')
   }
 })

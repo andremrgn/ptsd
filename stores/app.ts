@@ -8,6 +8,8 @@ export interface AppUser {
   role: string
   is_admin: boolean
   password_set: boolean
+  // Settes i Supabase for brukere som bare vil logge inn med e-postlenke
+  passwordless?: boolean
   team_id: string | null
   nickname: string | null
   favorite_quote: string | null
@@ -33,6 +35,11 @@ export const useAppStore = defineStore('app', () => {
 
   const isParticipant = computed(() =>
     user.value ? PARTICIPANT_ROLES.has(user.value.role) : false,
+  )
+
+  // Må brukeren sette passord før de slipper inn? (Ikke hvis de er passordløse.)
+  const needsPassword = computed(() =>
+    !!user.value && !user.value.password_set && !user.value.passwordless,
   )
 
   function setUser(u: AppUser) {
@@ -108,6 +115,7 @@ export const useAppStore = defineStore('app', () => {
     resultsVisible,
     competitionDeadline,
     isParticipant,
+    needsPassword,
     hjemRaw,
     hjemCacheFresh,
     setHjemRaw,
