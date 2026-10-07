@@ -73,10 +73,13 @@ export default defineEventHandler(async (event) => {
       to: person.email,
       subject: message,
       html: renderMail({
+        appUrl: config.public.appUrl,
+        title: 'Påminnelse',
         firstName: person.full_name.split(' ')[0],
-        bodyHtml: `<p style="font-size:1rem;line-height:1.6;margin-bottom:2rem">${message}</p>`,
+        bodyHtml: mailP(escapeHtml(message)),
         ctaUrl: `${config.public.appUrl}/app/send-inn`,
-        ctaText: 'Send inn postetekster →',
+        ctaText: 'Send inn postetekster…',
+        status: ['Klar', person.full_name],
       }),
     })
 

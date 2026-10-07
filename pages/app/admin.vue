@@ -114,6 +114,37 @@
         </button>
       </div>
 
+      <!-- Påminnelse om frist -->
+      <div class="mb1 mt2">
+        <div class="section-title">Påminnelse om frist</div>
+        <p style="font-size:0.83rem;color:var(--muted);margin-bottom:0.85rem">Sender påminnelsen «N dager igjen av Sølvposten» til de avkryssede. Antall dager regnes ut fra fristen den dagen mailen sendes.</p>
+        <div v-if="deadlineCandidates.length" class="table-wrap" style="margin-bottom:0.85rem">
+          <table class="data-table users-table">
+            <tbody>
+              <tr v-for="u in deadlineCandidates" :key="u.email">
+                <td><input :id="`frist-${u.email}`" type="checkbox" :value="u.email" v-model="deadlineSelected" /><label :for="`frist-${u.email}`">{{ u.full_name }}</label></td>
+                <td class="email-col">{{ u.email }}</td>
+                <td>{{ u.role }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="add-row">
+          <button class="btn btn-sm" :disabled="deadlinePreviewing" @click="previewDeadlineReminder">
+            {{ deadlinePreviewing ? 'Henter…' : deadlinePreview ? 'Oppdater forhåndsvisning' : 'Forhåndsvis…' }}
+          </button>
+          <button class="btn btn-sm" :disabled="deadlineSending || !deadlineSelected.length" @click="sendDeadlineReminder">
+            {{ deadlineSending ? 'Sender…' : `Send påminnelse (${deadlineSelected.length})` }}
+          </button>
+        </div>
+        <template v-if="deadlinePreview">
+          <p style="margin:0.85rem 0 0.4rem">Emne: <b>{{ deadlinePreview.subject }}</b></p>
+          <div class="sunken-panel" style="background:#c0c0c0">
+            <iframe :srcdoc="deadlinePreview.html" title="Forhåndsvisning av påminnelsen" style="display:block;width:100%;height:440px;border:0"></iframe>
+          </div>
+        </template>
+      </div>
+
       <!-- Jury members -->
       <div class="mb1 mt2">
         <div class="section-title">Jurymedlemmer</div>
@@ -248,6 +279,18 @@ const introCandidates = computed(() =>
     .sort((a, b) => INTRO_ROLES.indexOf(a.role) - INTRO_ROLES.indexOf(b.role) || a.full_name.localeCompare(b.full_name, 'no')),
 )
 
+// Påminnelse om frist: alle som kan sende inn bidrag, kreatørene er avkrysset som standard
+const DEADLINE_ROLES = ['kreatør', 'rådgiver', 'prosjektleder']
+const deadlineSelected = ref<string[]>([])
+const deadlineSending = ref(false)
+const deadlinePreviewing = ref(false)
+const deadlinePreview = ref<{ subject: string; html: string } | null>(null)
+const deadlineCandidates = computed(() =>
+  allUsers.value
+    .filter(u => DEADLINE_ROLES.includes(u.role))
+    .sort((a, b) => DEADLINE_ROLES.indexOf(a.role) - DEADLINE_ROLES.indexOf(b.role) || a.full_name.localeCompare(b.full_name, 'no')),
+)
+
 function toggleRoleGroup(role: string) {
   const s = new Set(collapsedRoles.value)
   s.has(role) ? s.delete(role) : s.add(role)
@@ -375,7 +418,35 @@ async function loadUsersTable() {
   introSelected.value = allUsers.value
     .filter(u => INTRO_ROLES.includes(u.role) && !INTRO_DEFAULT_EXCLUDE.includes(u.email))
     .map(u => u.email)
+  deadlineSelected.value = allUsers.value.filter(u => u.role === 'kreatør').map(u => u.email)
   usersLoading.value = false
+}
+
+async function previewDeadlineReminder() {
+  deadlinePreviewing.value = true
+  try {
+    deadlinePreview.value = await $fetch('/api/send-deadline-reminder', { method: 'POST', body: { preview: true } })
+  } catch (e: any) {
+    toast('Feil: ' + (e?.data?.message || e?.message || 'ukjent feil'), true)
+  } finally {
+    deadlinePreviewing.value = false
+  }
+}
+
+async function sendDeadlineReminder() {
+  const n = deadlineSelected.value.length
+  if (!n) return
+  if (!confirm(`Sende påminnelsen om fristen til ${n} ${n === 1 ? 'person' : 'personer'}?`)) return
+  deadlineSending.value = true
+  try {
+    const res: any = await $fetch('/api/send-deadline-reminder', { method: 'POST', body: { emails: deadlineSelected.value } })
+    toast(`Sendt til ${res.sent.length} ${res.sent.length === 1 ? 'person' : 'personer'} ✓`)
+    if (res.failed?.length) toast(`Feilet: ${res.failed.join(', ')}`, true)
+  } catch (e: any) {
+    toast('Feil: ' + (e?.data?.message || e?.message || 'ukjent feil'), true)
+  } finally {
+    deadlineSending.value = false
+  }
 }
 
 async function sendIntro() {
