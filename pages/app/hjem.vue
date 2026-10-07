@@ -455,34 +455,38 @@ onUnmounted(() => {
 
 .hjem-greeting > * { margin: 0; }
 
+/* Win98-knapp (standardknapp med tykk ramme, som «OK» i en dialog) */
 .hjem-cta {
   display: inline-block;
   margin-top: 0.25rem;
-  background: var(--coral);
-  color: white;
-  font-size: 0.85rem;
+  background: #c0c0c0;
+  color: #000;
+  font-size: 13px;
   font-weight: 700;
-  padding: 0.65rem 1.25rem;
-  border-radius: 6px;
+  padding: 7px 18px;
   text-decoration: none;
-  transition: opacity 0.15s;
+  outline: 1px solid #000;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
 }
-.hjem-cta:hover { opacity: 0.85; }
+.hjem-cta:active { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 
+/* Fristen som et lite LCD-aktig statusfelt */
 .deadline-card {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
   gap: 0.25rem;
+  background: #fff;
+  box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+  padding: 0.75rem 1rem;
 }
 
 .deadline-num {
-  font-size: 4rem;
-  font-weight: 900;
-  color: var(--coral);
+  font-size: 3rem;
+  font-weight: 700;
+  color: #000080;
   line-height: 1;
-  letter-spacing: -0.04em;
 }
 
 .deadline-label {
@@ -493,16 +497,15 @@ onUnmounted(() => {
 }
 
 .deadline-unit {
-  font-size: 0.95rem;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--navy);
-  letter-spacing: -0.01em;
+  color: #000;
 }
 
 .deadline-sub {
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 400;
-  color: var(--muted);
+  color: #404040;
 }
 
 @media (max-width: 600px) {

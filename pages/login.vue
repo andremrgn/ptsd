@@ -104,15 +104,15 @@ async function doMagicLink() {
 .btn-magic-link {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.6);
-  font-size: 0.8rem;
+  color: #000080;
+  font-size: 12px;
   cursor: pointer;
-  padding: 0.5rem 0;
-  margin-top: 0.5rem;
+  padding: 0.5rem 0 0;
+  margin-top: 0.25rem;
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-align: left;
 }
 .btn-magic-link:hover {
-  color: white;
+  color: #0000ff;
 }
 </style>

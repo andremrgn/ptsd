@@ -154,78 +154,72 @@ async function loadItems() {
 <style scoped>
 .nb-wrap { position: relative; }
 
+/* Win98: liten grå knapp i tittellinja + nedtrekksvindu */
 .nb-btn {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.18);
-  border-radius: 2px;
-  color: rgba(255,255,255,0.55);
+  width: 30px;
+  height: 30px;
+  background: #c0c0c0;
+  border: none;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  color: #000;
   cursor: pointer;
-  transition: all 0.15s;
 }
-.nb-btn:hover { color: white; border-color: rgba(255,255,255,0.4); }
+.nb-btn:active { box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080; }
 
 .nb-dot {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 4px;
+  right: 4px;
   width: 7px;
   height: 7px;
-  border-radius: 50%;
-  background: #ED555C;
-  border: 1.5px solid #2B2D42;
+  background: #ff0000;
+  border: 1px solid #800000;
 }
 
 .nb-panel {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 4px);
   right: 0;
   width: 310px;
-  background: white;
-  border: 1.5px solid rgba(43,45,66,0.13);
-  border-radius: 2px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  background: #c0c0c0;
+  border: none;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  padding: 3px;
   z-index: 400;
   max-height: 460px;
   overflow-y: auto;
 }
 
 .nb-head {
-  font-size: 0.67rem;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(43,45,66,0.45);
-  padding: 0.85rem 1rem 0.6rem;
-  border-bottom: 1px solid rgba(43,45,66,0.08);
+  color: #fff;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  padding: 3px 6px;
 }
 
 .nb-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.7rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(43,45,66,0.06);
-  transition: background 0.1s;
+  gap: 0.6rem;
+  padding: 6px 8px;
+  background: #fff;
+  border-bottom: 1px solid #dfdfdf;
 }
 .nb-item:last-child { border-bottom: none; }
-.nb-item:hover { background: #fafafa; }
-.nb-item.nb-unread { background: #fff8f7; }
-.nb-item.nb-system { background: #f7f9ff; }
+.nb-item:hover { background: #000080; }
+.nb-item:hover .nb-text, .nb-item:hover .nb-sub { color: #fff; }
+.nb-item.nb-unread .nb-text { font-weight: 700; }
+.nb-item.nb-system { background: #ffffe1; }
 
 .nb-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
-.nb-text { font-size: 0.85rem; font-weight: 500; color: #2B2D42; line-height: 1.4; }
-.nb-sub { font-size: 0.75rem; color: rgba(43,45,66,0.45); margin-top: 0.15rem; }
+.nb-text { font-size: 12px; font-weight: 400; color: #000; line-height: 1.4; }
+.nb-sub { font-size: 11px; color: #404040; margin-top: 0.1rem; }
 
-.nb-loading { padding: 1.5rem; text-align: center; font-size: 0.85rem; color: rgba(43,45,66,0.4); }
-.nb-empty { padding: 1.5rem; text-align: center; font-size: 0.85rem; color: rgba(43,45,66,0.4); }
-
-.nb-fade-enter-active, .nb-fade-leave-active { transition: opacity 0.15s, transform 0.15s; }
-.nb-fade-enter-from, .nb-fade-leave-to { opacity: 0; transform: translateY(-6px); }
+.nb-loading, .nb-empty { padding: 1rem; text-align: center; font-size: 12px; color: #404040; background: #fff; }
 </style>
